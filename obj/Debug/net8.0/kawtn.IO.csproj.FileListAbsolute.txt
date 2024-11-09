@@ -1,0 +1,11 @@
+D:\Development\kawtn.IO\bin\Debug\net8.0\kawtn.IO.deps.json
+D:\Development\kawtn.IO\bin\Debug\net8.0\kawtn.IO.dll
+D:\Development\kawtn.IO\bin\Debug\net8.0\kawtn.IO.pdb
+D:\Development\kawtn.IO\obj\Debug\net8.0\kawtn.IO.GeneratedMSBuildEditorConfig.editorconfig
+D:\Development\kawtn.IO\obj\Debug\net8.0\kawtn.IO.AssemblyInfoInputs.cache
+D:\Development\kawtn.IO\obj\Debug\net8.0\kawtn.IO.AssemblyInfo.cs
+D:\Development\kawtn.IO\obj\Debug\net8.0\kawtn.IO.csproj.CoreCompileInputs.cache
+D:\Development\kawtn.IO\obj\Debug\net8.0\kawtn.IO.dll
+D:\Development\kawtn.IO\obj\Debug\net8.0\refint\kawtn.IO.dll
+D:\Development\kawtn.IO\obj\Debug\net8.0\kawtn.IO.pdb
+D:\Development\kawtn.IO\obj\Debug\net8.0\ref\kawtn.IO.dll

@@ -1,0 +1,3 @@
+D:\Development\kawtn.IO\bin\Release\net8.0\publish\kawtn.IO.dll
+D:\Development\kawtn.IO\bin\Release\net8.0\publish\kawtn.IO.deps.json
+D:\Development\kawtn.IO\bin\Release\net8.0\publish\kawtn.IO.pdb
