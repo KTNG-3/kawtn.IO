@@ -9,7 +9,7 @@ namespace kawtn.IO
 {
     public class Item
     {
-        public readonly string path;
+        public string path { get; private set; }
 
         public Item(string path)
         {
@@ -79,6 +79,8 @@ namespace kawtn.IO
         {
             Clone(destination);
             Delete();
+
+            this.path = Path.Join(destination.path, GetName());
         }
 
         public void Delete()

@@ -23,27 +23,26 @@ namespace kawtn.IO
 
             string tempPath = Path.Join(Path.GetTempPath(), $"kawtn.IO-{Path.GetRandomFileName()}");
             Temporary = new(tempPath);
-            Temporary.Create();
         }
 
-        public static string GetDirectory(params string[] path)
+        public static Inventory GetInventory(params string[] path)
         {
-            string joinpath = Path.Join(path);
+            string joinPath = Path.Join(path);
 
             if (IsWindows)
-                return Path.GetFullPath(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), joinpath));
+                joinPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), joinPath);
 
             if (IsMacOS)
-                return Path.GetFullPath(Path.Join("Library", "Application Support", joinpath));
+                joinPath = Path.Join("Library", "Application Support", joinPath);
 
-            return Path.GetFullPath(joinpath);
+            return new(joinPath);
         }
 
-        public static string GetDirectoryByOS(string windows, string macos, string linux)
+        public static Inventory GetInventoryByOS(string windows, string macos, string linux)
         {
-            if (IsWindows) return GetDirectory(windows);
-            if (IsMacOS) return GetDirectory(macos);
-            if (IsLinux) return GetDirectory(linux);
+            if (IsWindows) return GetInventory(windows);
+            if (IsMacOS) return GetInventory(macos);
+            if (IsLinux) return GetInventory(linux);
 
             throw new PlatformNotSupportedException();
         }

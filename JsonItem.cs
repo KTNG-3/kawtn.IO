@@ -20,9 +20,14 @@ namespace kawtn.IO
             base.Write(JsonSerializer.Serialize(data));
         }
 
+        public string ReadString()
+        {
+            return base.Read();
+        }
+
         public new T Read()
         {
-            T? data = JsonSerializer.Deserialize<T>(base.Read());
+            T? data = JsonSerializer.Deserialize<T>(ReadString());
             if (data == null) throw new NullReferenceException(this.path);
 
             return data;

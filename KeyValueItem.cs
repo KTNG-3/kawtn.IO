@@ -21,7 +21,8 @@ namespace kawtn.IO
 
             base.Edit(x =>
             {
-                x.Add(key, value);
+                x[key] = value;
+
                 return x;
             });
         }
@@ -39,6 +40,7 @@ namespace kawtn.IO
             base.Edit(x =>
             {
                 x.Remove(key);
+
                 return x;
             });
         }

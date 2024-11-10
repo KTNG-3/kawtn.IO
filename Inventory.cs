@@ -10,7 +10,7 @@ namespace kawtn.IO
 {
     public class Inventory
     {
-        public readonly string path;
+        public string path { get; private set; }
 
         public Inventory(string path)
         {
@@ -102,11 +102,11 @@ namespace kawtn.IO
 
         public void Clone(Inventory destination)
         {
-            CloneFiles(destination);
+            CloneItems(destination);
             CloneInventories(destination);
         }
 
-        public void CloneFiles(Inventory destination)
+        public void CloneItems(Inventory destination)
         {
             if (!Exists()) return;
 
@@ -119,17 +119,24 @@ namespace kawtn.IO
 
             foreach (Inventory inventory in ReadInventories())
             {
-                string path = Path.Join(destination.path, inventory.GetName());
-                Inventory destInv = new(path);
+                string dst = Path.Join(destination.path, inventory.GetName());
+                Inventory dstInv = new(dst);
 
-                destInv.WriteItem(inventory.ReadItems());
-                destInv.WriteInventory(inventory.ReadInventories());
+                inventory.Clone(dstInv);
             }
+        }
+
+        public void Move(Inventory destination)
+        {
+            Clone(destination);
+            Delete();
+
+            this.path = Path.Join(destination.path, GetName());
         }
 
         public void Delete()
         {
-            Directory.Delete(this.path);
+            Directory.Delete(this.path, true);
         }
     }
 }

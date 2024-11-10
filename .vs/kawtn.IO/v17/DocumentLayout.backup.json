@@ -1,7 +1,24 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\Development\\kawtn.IO\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{03E75C71-4691-4BC5-AC3D-7AD7B567D74F}|kawtn.IO.csproj|d:\\development\\kawtn.io\\item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{03E75C71-4691-4BC5-AC3D-7AD7B567D74F}|kawtn.IO.csproj|solutionrelative:item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{03E75C71-4691-4BC5-AC3D-7AD7B567D74F}|kawtn.IO.csproj|d:\\development\\kawtn.io\\inventory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{03E75C71-4691-4BC5-AC3D-7AD7B567D74F}|kawtn.IO.csproj|solutionrelative:inventory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{03E75C71-4691-4BC5-AC3D-7AD7B567D74F}|kawtn.IO.csproj|d:\\development\\kawtn.io\\keyvalueitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{03E75C71-4691-4BC5-AC3D-7AD7B567D74F}|kawtn.IO.csproj|solutionrelative:keyvalueitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{03E75C71-4691-4BC5-AC3D-7AD7B567D74F}|kawtn.IO.csproj|d:\\development\\kawtn.io\\jsonitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{03E75C71-4691-4BC5-AC3D-7AD7B567D74F}|kawtn.IO.csproj|solutionrelative:jsonitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,11 +26,63 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:1:0:{f2bd8fb8-fc94-3dae-a733-fd993c73cc87}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "KeyValueItem.cs",
+              "DocumentMoniker": "D:\\Development\\kawtn.IO\\KeyValueItem.cs",
+              "RelativeDocumentMoniker": "KeyValueItem.cs",
+              "ToolTip": "D:\\Development\\kawtn.IO\\KeyValueItem.cs",
+              "RelativeToolTip": "KeyValueItem.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAgwCoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-10T14:32:52.159Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "JsonItem.cs",
+              "DocumentMoniker": "D:\\Development\\kawtn.IO\\JsonItem.cs",
+              "RelativeDocumentMoniker": "JsonItem.cs",
+              "ToolTip": "D:\\Development\\kawtn.IO\\JsonItem.cs",
+              "RelativeToolTip": "JsonItem.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAgwBgAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-10T14:32:04.903Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Item.cs",
+              "DocumentMoniker": "D:\\Development\\kawtn.IO\\Item.cs",
+              "RelativeDocumentMoniker": "Item.cs",
+              "ToolTip": "D:\\Development\\kawtn.IO\\Item.cs",
+              "RelativeToolTip": "Item.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAqwA8AAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-10T14:30:49.704Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Inventory.cs",
+              "DocumentMoniker": "D:\\Development\\kawtn.IO\\Inventory.cs",
+              "RelativeDocumentMoniker": "Inventory.cs",
+              "ToolTip": "D:\\Development\\kawtn.IO\\Inventory.cs",
+              "RelativeToolTip": "Inventory.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAH0AAABEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-10T14:29:10.012Z",
+              "EditorCaption": ""
             }
           ]
         }
