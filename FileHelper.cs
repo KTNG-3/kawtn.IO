@@ -72,12 +72,6 @@ namespace kawtn.IO
             Update(path, JsonSerializer.Serialize(data));
         }
 
-        public static void EditJSON<T>(string path, Func<T?, T?> editor)
-        {
-            T? data = ReadJSON<T>(path);
-            UpdateJSON(path, editor.Invoke(data));
-        }
-
         public static void Clone(string sourcePath, string destinationPath)
         {
             if (!File.Exists(sourcePath)) return;

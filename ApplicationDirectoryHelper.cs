@@ -22,8 +22,6 @@ namespace kawtn.IO
             IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
             Temporary = Path.Join(Path.GetTempPath(), $"kawtn.IO-{Path.GetRandomFileName()}");
-
-            DirectoryHelper.Delete(Temporary);
             DirectoryHelper.Create(Temporary);
         }
 
