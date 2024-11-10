@@ -120,7 +120,9 @@ namespace kawtn.IO
             foreach (Inventory inventory in ReadInventories())
             {
                 string dst = Path.Join(destination.path, inventory.GetName());
+
                 Inventory dstInv = new(dst);
+                dstInv.Create();
 
                 inventory.Clone(dstInv);
             }
@@ -131,7 +133,7 @@ namespace kawtn.IO
             Clone(destination);
             Delete();
 
-            this.path = Path.Join(destination.path, GetName());
+            this.path = destination.path;
         }
 
         public void Delete()

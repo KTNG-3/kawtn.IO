@@ -10,7 +10,7 @@ namespace kawtn.IO
 {
     public class KeyValueItem : JsonItem<Dictionary<string, string>>
     {
-        public KeyValueItem(string path) : base(path)
+        public KeyValueItem(string path) : base(path, defaultValue: new())
         {
             
         }

@@ -10,9 +10,11 @@ namespace kawtn.IO
 {
     public class JsonItem<T> : StringItem
     {
-        public JsonItem(string path) : base(path)
+        readonly T? defaultValue = default;
+
+        public JsonItem(string path, T? defaultValue = default) : base(path)
         {
-            
+            this.defaultValue = defaultValue;
         }
 
         public void Write(T data)
@@ -28,9 +30,20 @@ namespace kawtn.IO
         public new T Read()
         {
             T? data = JsonSerializer.Deserialize<T>(ReadString());
-            if (data == null) throw new NullReferenceException(this.path);
 
-            return data;
+            if (data != null)
+            {
+                return data;
+            }
+
+            if (this.defaultValue != null)
+            {
+                Write(defaultValue);
+
+                return Read();
+            }
+
+            throw new NullReferenceException(this.path);
         }
 
         public void Edit(Func<T, T> editor)
