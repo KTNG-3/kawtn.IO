@@ -8,15 +8,17 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace kawtn.IO
 {
-    public class KeyValueFileManager : JsonFileManager<Dictionary<string, string>>
+    public class KeyValueItem : JsonItem<Dictionary<string, string>>
     {
-        public KeyValueFileManager(string path) : base(path)
+        public KeyValueItem(string path) : base(path)
         {
             
         }
 
         public void Write(string key, string value)
         {
+            if (string.IsNullOrWhiteSpace(value)) throw new ArgumentNullException("value");
+
             base.Edit(x =>
             {
                 x.Add(key, value);
@@ -27,7 +29,7 @@ namespace kawtn.IO
         public string Read(string key)
         {
             Dictionary<string, string> data = base.Read();
-            if (!data.TryGetValue(key, out string? value) || string.IsNullOrWhiteSpace(value)) throw new NullReferenceException(key);
+            if (!data.TryGetValue(key, out string? value)) throw new NullReferenceException(key);
 
             return value;
         }

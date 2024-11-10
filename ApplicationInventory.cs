@@ -7,22 +7,23 @@ using System.Threading.Tasks;
 
 namespace kawtn.IO
 {
-    public static class ApplicationDirectoryHelper
+    public static class ApplicationInventory
     {
         static readonly bool IsWindows;
         static readonly bool IsMacOS;
         static readonly bool IsLinux;
 
-        public static readonly string Temporary;
+        public static readonly Inventory Temporary;
 
-        static ApplicationDirectoryHelper()
+        static ApplicationInventory()
         {
             IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             IsMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
             IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
-            Temporary = Path.Join(Path.GetTempPath(), $"kawtn.IO-{Path.GetRandomFileName()}");
-            DirectoryHelper.Create(Temporary);
+            string tempPath = Path.Join(Path.GetTempPath(), $"kawtn.IO-{Path.GetRandomFileName()}");
+            Temporary = new(tempPath);
+            Temporary.Create();
         }
 
         public static string GetDirectory(params string[] path)

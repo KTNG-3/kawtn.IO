@@ -1,26 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace kawtn.IO
 {
-    public class JsonFileManager<T> : FileManager
+    public class JsonItem<T> : StringItem
     {
-        public JsonFileManager(string path) : base(path)
+        public JsonItem(string path) : base(path)
         {
             
         }
 
         public void Write(T data)
         {
-            FileHelper.UpdateJSON(this.path, data);
+            base.Write(JsonSerializer.Serialize(data));
         }
 
         public new T Read()
         {
-            T? data = FileHelper.ReadJSON<T>(this.path);
+            T? data = JsonSerializer.Deserialize<T>(base.Read());
             if (data == null) throw new NullReferenceException(this.path);
 
             return data;
