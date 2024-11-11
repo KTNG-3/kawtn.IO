@@ -29,18 +29,20 @@ namespace kawtn.IO
 
         public new T Read()
         {
-            T? data = JsonSerializer.Deserialize<T>(ReadString());
+            string read = ReadString();
 
-            if (data != null)
-            {
-                return data;
-            }
-
-            if (this.defaultValue != null)
+            if (string.IsNullOrWhiteSpace(read) && this.defaultValue != null)
             {
                 Write(defaultValue);
 
                 return Read();
+            }
+
+            T? data = JsonSerializer.Deserialize<T>(read);
+
+            if (data != null)
+            {
+                return data;
             }
 
             throw new NullReferenceException(this.path);
