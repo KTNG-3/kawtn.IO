@@ -8,123 +8,106 @@ using System.Xml.Linq;
 
 namespace kawtn.IO
 {
+    // Directory
     public class Inventory
     {
-        public string path { get; private set; }
+        public readonly string Location;
 
-        public Inventory(string path)
+        public Inventory(string location)
         {
-            this.path = Path.GetFullPath(path);
+            this.Location = new Location(location).Data;
+        }
+
+        public Inventory(Location location)
+        {
+            this.Location = location.Data;
         }
 
         public string GetName()
         {
-            return new Item(this.path).GetName();
+            return new Item(this.Location).GetName();
         }
 
         public Inventory GetRootInventory()
         {
-            return new Item(this.path).GetInventory();
+            return new Item(this.Location).GetInventory();
         }
 
         public bool Exists()
         {
-            return Directory.Exists(this.path);
+            return Directory.Exists(this.Location);
         }
 
         public void Create()
         {
             if (Exists()) return;
 
-            Directory.CreateDirectory(path);
+            Directory.CreateDirectory(Location);
         }
 
-        public void WriteItem(params Item[] items)
+        public Item Insert(Item item)
         {
             Create();
 
-            foreach (Item item in items)
-            {
-                item.Clone(this);
-            }
+            return item.InsertTo(this);
         }
 
-        public void WriteInventory(params Inventory[] inventories)
+        public Inventory Insert(Inventory inventory)
         {
             Create();
 
-            foreach (Inventory inventory in inventories)
-            {
-                inventory.Clone(this);
-            }
+            return inventory.InsertTo(this);
         }
 
-        public string[] Read()
+        public Location[] Read()
         {
-            if (Exists())
-            {
-                return Directory.GetFileSystemEntries(this.path);
-            }
-            else
-            {
-                return Array.Empty<string>();
-            }
+            if (!Exists())
+                return Array.Empty<Location>();
+
+            return Directory.GetFileSystemEntries(this.Location)
+                .Select(x => new Location(x))
+                .ToArray();
         }
 
         public Item[] ReadItems()
         {
-            if (Exists())
-            {
-                return Directory.GetFiles(this.path).Select(x => new Item(x)).ToArray();
-            }
-            else
-            {
+            if (!Exists())
                 return Array.Empty<Item>();
-            }
+
+            return Directory.GetFiles(this.Location)
+                .Select(x => new Item(x))
+                .ToArray();
         }
 
         public Inventory[] ReadInventories()
         {
-            if (Exists())
-            {
-                return Directory.GetDirectories(this.path).Select(x => new Inventory(x)).ToArray();
-            }
-            else
-            {
+            if (!Exists())
                 return Array.Empty<Inventory>();
-            }
+
+            return Directory.GetDirectories(this.Location)
+                .Select(x => new Inventory(x))
+                .ToArray();
         }
 
         public void Zip(Item destination)
         {
-            ZipFile.CreateFromDirectory(this.path, destination.path);
+            ZipFile.CreateFromDirectory(this.Location, destination.Location);
         }
 
         public void Clone(Inventory destination)
         {
-            CloneItems(destination);
-            CloneInventories(destination);
-        }
-
-        public void CloneItems(Inventory destination)
-        {
             if (!Exists()) return;
 
-            destination.WriteItem(ReadItems());
-        }
+            destination.Create();
 
-        public void CloneInventories(Inventory destination)
-        {
-            if (!Exists()) return;
+            foreach (Item item in ReadItems())
+            {
+                item.InsertTo(destination);
+            }
 
             foreach (Inventory inventory in ReadInventories())
             {
-                string dst = Path.Join(destination.path, inventory.GetName());
-
-                Inventory dstInv = new(dst);
-                dstInv.Create();
-
-                inventory.Clone(dstInv);
+                inventory.InsertTo(destination);
             }
         }
 
@@ -132,13 +115,31 @@ namespace kawtn.IO
         {
             Clone(destination);
             Delete();
+        }
 
-            this.path = destination.path;
+        public Inventory InsertTo(Inventory destination)
+        {
+            Inventory inventory = new Location(destination, GetName()).ParseInventory();
+
+            Clone(inventory);
+
+            return inventory;
+        }
+
+        public Inventory TransferTo(Inventory destination)
+        {
+            Inventory inventory = InsertTo(destination);
+
+            Delete();
+
+            return inventory;
         }
 
         public void Delete()
         {
-            Directory.Delete(this.path, true);
+            if (!Exists()) return;
+
+            Directory.Delete(this.Location, true);
         }
     }
 }

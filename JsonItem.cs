@@ -45,7 +45,7 @@ namespace kawtn.IO
                 return data;
             }
 
-            throw new NullReferenceException(this.path);
+            throw new NullReferenceException(this.Location);
         }
 
         public void Edit(Func<T, T> editor)

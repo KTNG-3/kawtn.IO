@@ -17,14 +17,14 @@ namespace kawtn.IO
         {
             Create();
 
-            File.WriteAllText(path, data);
+            File.WriteAllText(Location, data);
         }
 
         public new string Read()
         {
-            if (File.Exists(path))
+            if (File.Exists(Location))
             {
-                return File.ReadAllText(path);
+                return File.ReadAllText(Location);
 
             }
             else

@@ -7,28 +7,34 @@ using System.Threading.Tasks;
 
 namespace kawtn.IO
 {
+    // File
     public class Item
     {
-        public string path { get; private set; }
+        public readonly string Location;
 
-        public Item(string path)
+        public Item(string location)
         {
-            this.path = Path.GetFullPath(path);
+            this.Location = new Location(location).Data;
+        }
+
+        public Item(Location location)
+        {
+            this.Location = location.Data;
         }
 
         public string GetName()
         {
-            return Path.GetFileName(this.path) ?? string.Empty;
+            return Path.GetFileName(this.Location) ?? string.Empty;
         }
 
         public Inventory GetInventory()
         {
-            return new(Path.GetDirectoryName(path) ?? string.Empty);
+            return new(Path.GetDirectoryName(Location) ?? string.Empty);
         }
 
         public bool Exists()
         {
-            return File.Exists(this.path);
+            return File.Exists(this.Location);
         }
 
         public void Create()
@@ -37,21 +43,21 @@ namespace kawtn.IO
 
             GetInventory().Create();
 
-            File.WriteAllBytes(path, Array.Empty<byte>());
+            File.WriteAllBytes(Location, Array.Empty<byte>());
         }
 
         public void Write(byte[] data)
         {
             Create();
 
-            File.WriteAllBytes(path, data);
+            File.WriteAllBytes(Location, data);
         }
 
         public byte[] Read()
         {
             if (Exists())
             {
-                return File.ReadAllBytes(this.path);
+                return File.ReadAllBytes(this.Location);
             }
             else
             {
@@ -62,32 +68,45 @@ namespace kawtn.IO
         public void Unzip(Inventory destination)
         {
             destination.Create();
-            ZipFile.ExtractToDirectory(this.path, destination.path);
+            ZipFile.ExtractToDirectory(this.Location, destination.Location);
         }
 
-        public void Clone(Inventory destination)
+        public void Clone(Item destination)
         {
             if (!Exists()) return;
 
-            string path = Path.Join(destination.path, GetName());
-            Item item = new(path);
-
-            item.Write(Read());
+            destination.Write(Read());
         }
 
-        public void Move(Inventory destination)
+        public void Move(Item destination)
         {
             Clone(destination);
             Delete();
+        }
 
-            this.path = destination.path;
+        public Item InsertTo(Inventory destination)
+        {
+            Item item = new Location(destination, GetName()).ParseItem();
+
+            Clone(item);
+
+            return item;
+        }
+
+        public Item TransferTo(Inventory destination)
+        {
+            Item item = InsertTo(destination);
+
+            Delete();
+
+            return item;
         }
 
         public void Delete()
         {
             if (!Exists()) return;
 
-            File.Delete(this.path);
+            File.Delete(this.Location);
         }
     }
 }
