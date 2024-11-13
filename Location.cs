@@ -11,16 +11,9 @@ namespace kawtn.IO
     {
         public string Data { get; private set; }
 
-        void Validate()
-        {
-            this.Data = Path.GetFullPath(this.Data);
-        }
-
         public Location(params string[] str)
         {
-            this.Data = Path.Join(str);
-
-            Validate();
+            this.Data = Path.GetFullPath(Path.Join(str));
         }
 
         public Location(Location baseLocation, params string[] str)

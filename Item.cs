@@ -15,33 +15,46 @@ namespace kawtn.IO
         public Item(Location location)
         {
             this.Location = location;
-
-            Create();
         }
 
         public Item(string location) 
             : this(new Location(location)) { }
-
-        public string GetName()
-        {
-            return Path.GetFileName(this.Location.Data) ?? string.Empty;
-        }
-
-        public Inventory GetInventory()
-        {
-            return new(Path.GetDirectoryName(this.Location.Data) ?? string.Empty);
-        }
 
         public bool IsExists()
         {
             return File.Exists(this.Location.Data);
         }
 
+        public string? GetName()
+        {
+            return Location.GetName();
+        }
+
+        public Inventory? GetParent()
+        {
+            Location? location = Location.GetParent();
+
+            if (location == null)
+            {
+                return null;
+            }
+            else
+            {
+                return location.ParseInventory();
+            }
+        }
+
+        public FileInfo GetInfo()
+        {
+            return new(this.Location.Data);
+        }
+
         public void Create()
         {
             if (IsExists()) return;
 
-            GetInventory().Create();
+            Inventory? parent = GetParent();
+            if (parent != null) parent.Create();
 
             File.WriteAllBytes(this.Location.Data, Array.Empty<byte>());
         }

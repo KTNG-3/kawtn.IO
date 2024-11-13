@@ -16,26 +16,38 @@ namespace kawtn.IO
         public Inventory(Location location)
         {
             this.Location = location;
-
-            Create();
         }
 
         public Inventory(string location) 
             : this(new Location(location)) { }
 
-        public string GetName()
-        {
-            return new Item(this.Location.Data).GetName();
-        }
-
-        public Inventory GetRootInventory()
-        {
-            return new Item(this.Location.Data).GetInventory();
-        }
-
         public bool IsExists()
         {
             return Directory.Exists(this.Location.Data);
+        }
+
+        public string? GetName()
+        {
+            return Location.GetName();
+        }
+
+        public Inventory? GetParent()
+        {
+            Location? location = Location.GetParent();
+
+            if (location == null)
+            {
+                return null;
+            }
+            else
+            {
+                return location.ParseInventory();
+            }
+        }
+
+        public DirectoryInfo GetInfo()
+        {
+            return new(this.Location.Data);
         }
 
         public void Create()
