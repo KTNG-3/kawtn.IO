@@ -10,31 +10,31 @@ namespace kawtn.IO
     // File
     public class Item
     {
-        public readonly string Location;
-
-        public Item(string location)
-        {
-            this.Location = new Location(location).Data;
-        }
+        public readonly Location Location;
 
         public Item(Location location)
         {
-            this.Location = location.Data;
+            this.Location = location;
+
+            Create();
         }
+
+        public Item(string location) 
+            : this(new Location(location)) { }
 
         public string GetName()
         {
-            return Path.GetFileName(this.Location) ?? string.Empty;
+            return Path.GetFileName(this.Location.Data) ?? string.Empty;
         }
 
         public Inventory GetInventory()
         {
-            return new(Path.GetDirectoryName(Location) ?? string.Empty);
+            return new(Path.GetDirectoryName(this.Location.Data) ?? string.Empty);
         }
 
         public bool IsExists()
         {
-            return File.Exists(this.Location);
+            return File.Exists(this.Location.Data);
         }
 
         public void Create()
@@ -43,21 +43,21 @@ namespace kawtn.IO
 
             GetInventory().Create();
 
-            File.WriteAllBytes(Location, Array.Empty<byte>());
+            File.WriteAllBytes(this.Location.Data, Array.Empty<byte>());
         }
 
         public void Write(byte[] data)
         {
             Create();
 
-            File.WriteAllBytes(Location, data);
+            File.WriteAllBytes(this.Location.Data, data);
         }
 
         public byte[] Read()
         {
             if (IsExists())
             {
-                return File.ReadAllBytes(this.Location);
+                return File.ReadAllBytes(this.Location.Data);
             }
             else
             {
@@ -68,7 +68,7 @@ namespace kawtn.IO
         public void Unzip(Inventory destination)
         {
             destination.Create();
-            ZipFile.ExtractToDirectory(this.Location, destination.Location);
+            ZipFile.ExtractToDirectory(this.Location.Data, destination.Location.Data);
         }
 
         public void Clone(Item destination)
@@ -106,7 +106,7 @@ namespace kawtn.IO
         {
             if (!IsExists()) return;
 
-            File.Delete(this.Location);
+            File.Delete(this.Location.Data);
         }
     }
 }

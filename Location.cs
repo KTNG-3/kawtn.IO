@@ -24,25 +24,13 @@ namespace kawtn.IO
         }
 
         public Location(Location baseLocation, params string[] str)
-        {
-            this.Data = Path.Join(baseLocation.Data, Path.Join(str));
-
-            Validate();
-        }
+            : this(baseLocation.Data, Path.Join(str)) { }
 
         public Location(Item baseLocation, params string[] str)
-        {
-            this.Data = Path.Join(baseLocation.Location, Path.Join(str));
-
-            Validate();
-        }
+            : this(baseLocation.Location.Data, Path.Join(str)) { }
 
         public Location(Inventory baseLocation, params string[] str)
-        {
-            this.Data = Path.Join(baseLocation.Location, Path.Join(str));
-
-            Validate();
-        }
+            : this(baseLocation.Location.Data, Path.Join(str)) { }
 
         public bool IsExists()
         {

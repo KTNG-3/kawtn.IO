@@ -11,38 +11,38 @@ namespace kawtn.IO
     // Directory
     public class Inventory
     {
-        public readonly string Location;
-
-        public Inventory(string location)
-        {
-            this.Location = new Location(location).Data;
-        }
+        public readonly Location Location;
 
         public Inventory(Location location)
         {
-            this.Location = location.Data;
+            this.Location = location;
+
+            Create();
         }
+
+        public Inventory(string location) 
+            : this(new Location(location)) { }
 
         public string GetName()
         {
-            return new Item(this.Location).GetName();
+            return new Item(this.Location.Data).GetName();
         }
 
         public Inventory GetRootInventory()
         {
-            return new Item(this.Location).GetInventory();
+            return new Item(this.Location.Data).GetInventory();
         }
 
         public bool IsExists()
         {
-            return Directory.Exists(this.Location);
+            return Directory.Exists(this.Location.Data);
         }
 
         public void Create()
         {
             if (IsExists()) return;
 
-            Directory.CreateDirectory(Location);
+            Directory.CreateDirectory(this.Location.Data);
         }
 
         public Item Insert(Item item)
@@ -64,7 +64,7 @@ namespace kawtn.IO
             if (!IsExists())
                 return Array.Empty<Location>();
 
-            return Directory.GetFileSystemEntries(this.Location)
+            return Directory.GetFileSystemEntries(this.Location.Data)
                 .Select(x => new Location(x))
                 .ToArray();
         }
@@ -74,7 +74,7 @@ namespace kawtn.IO
             if (!IsExists())
                 return Array.Empty<Item>();
 
-            return Directory.GetFiles(this.Location)
+            return Directory.GetFiles(this.Location.Data)
                 .Select(x => new Item(x))
                 .ToArray();
         }
@@ -84,14 +84,14 @@ namespace kawtn.IO
             if (!IsExists())
                 return Array.Empty<Inventory>();
 
-            return Directory.GetDirectories(this.Location)
+            return Directory.GetDirectories(this.Location.Data)
                 .Select(x => new Inventory(x))
                 .ToArray();
         }
 
         public void Zip(Item destination)
         {
-            ZipFile.CreateFromDirectory(this.Location, destination.Location);
+            ZipFile.CreateFromDirectory(this.Location.Data, destination.Location.Data);
         }
 
         public void Clone(Inventory destination)
@@ -139,7 +139,7 @@ namespace kawtn.IO
         {
             if (!IsExists()) return;
 
-            Directory.Delete(this.Location, true);
+            Directory.Delete(this.Location.Data, true);
         }
     }
 }
