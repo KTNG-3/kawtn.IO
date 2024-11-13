@@ -44,6 +44,72 @@ namespace kawtn.IO
             Validate();
         }
 
+        public bool Exists()
+        {
+            return Path.Exists(this.Data);
+        }
+
+        public bool IsItem()
+        {
+            if (!Exists()) return false;
+
+            return !IsDirectory();
+        }
+
+        public bool IsDirectory()
+        {
+            if (!Exists()) return false;
+
+            return File.GetAttributes(this.Data).HasFlag(FileAttributes.Directory);
+        }
+
+        public string? GetName()
+        {
+            if (!Exists()) return null;
+
+            if (IsDirectory())
+            {
+                return Path.GetDirectoryName(this.Data);
+            }
+
+            return Path.GetFileName(this.Data);
+        }
+
+        string? GetParentPath()
+        {
+            if (!Exists()) return null;
+
+            if (IsItem())
+            {
+                return Path.GetDirectoryName(this.Data);
+            }
+
+            DirectoryInfo? parent = Directory.GetParent(this.Data);
+
+            if (parent == null)
+            {
+                return null;
+            }
+            else
+            {
+                return parent.FullName;
+            }
+        }
+
+        public Location? GetParent()
+        {
+            string? path = GetParentPath();
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return null;
+            }
+            else
+            {
+                return new(path);
+            }
+        }
+
         public Item ParseItem()
         {
             return new(this);
