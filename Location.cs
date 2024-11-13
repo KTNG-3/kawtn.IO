@@ -44,28 +44,28 @@ namespace kawtn.IO
             Validate();
         }
 
-        public bool Exists()
+        public bool IsExists()
         {
             return Path.Exists(this.Data);
         }
 
         public bool IsItem()
         {
-            if (!Exists()) return false;
+            if (!IsExists()) return false;
 
             return !IsDirectory();
         }
 
         public bool IsDirectory()
         {
-            if (!Exists()) return false;
+            if (!IsExists()) return false;
 
             return File.GetAttributes(this.Data).HasFlag(FileAttributes.Directory);
         }
 
         public string? GetName()
         {
-            if (!Exists()) return null;
+            if (!IsExists()) return null;
 
             if (IsDirectory())
             {
@@ -77,7 +77,7 @@ namespace kawtn.IO
 
         string? GetParentPath()
         {
-            if (!Exists()) return null;
+            if (!IsExists()) return null;
 
             if (IsItem())
             {

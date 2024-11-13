@@ -33,14 +33,14 @@ namespace kawtn.IO
             return new Item(this.Location).GetInventory();
         }
 
-        public bool Exists()
+        public bool IsExists()
         {
             return Directory.Exists(this.Location);
         }
 
         public void Create()
         {
-            if (Exists()) return;
+            if (IsExists()) return;
 
             Directory.CreateDirectory(Location);
         }
@@ -61,7 +61,7 @@ namespace kawtn.IO
 
         public Location[] Read()
         {
-            if (!Exists())
+            if (!IsExists())
                 return Array.Empty<Location>();
 
             return Directory.GetFileSystemEntries(this.Location)
@@ -71,7 +71,7 @@ namespace kawtn.IO
 
         public Item[] ReadItems()
         {
-            if (!Exists())
+            if (!IsExists())
                 return Array.Empty<Item>();
 
             return Directory.GetFiles(this.Location)
@@ -81,7 +81,7 @@ namespace kawtn.IO
 
         public Inventory[] ReadInventories()
         {
-            if (!Exists())
+            if (!IsExists())
                 return Array.Empty<Inventory>();
 
             return Directory.GetDirectories(this.Location)
@@ -96,7 +96,7 @@ namespace kawtn.IO
 
         public void Clone(Inventory destination)
         {
-            if (!Exists()) return;
+            if (!IsExists()) return;
 
             destination.Create();
 
@@ -137,7 +137,7 @@ namespace kawtn.IO
 
         public void Delete()
         {
-            if (!Exists()) return;
+            if (!IsExists()) return;
 
             Directory.Delete(this.Location, true);
         }

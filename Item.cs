@@ -32,14 +32,14 @@ namespace kawtn.IO
             return new(Path.GetDirectoryName(Location) ?? string.Empty);
         }
 
-        public bool Exists()
+        public bool IsExists()
         {
             return File.Exists(this.Location);
         }
 
         public void Create()
         {
-            if (Exists()) return;
+            if (IsExists()) return;
 
             GetInventory().Create();
 
@@ -55,7 +55,7 @@ namespace kawtn.IO
 
         public byte[] Read()
         {
-            if (Exists())
+            if (IsExists())
             {
                 return File.ReadAllBytes(this.Location);
             }
@@ -73,7 +73,7 @@ namespace kawtn.IO
 
         public void Clone(Item destination)
         {
-            if (!Exists()) return;
+            if (!IsExists()) return;
 
             destination.Write(Read());
         }
@@ -104,7 +104,7 @@ namespace kawtn.IO
 
         public void Delete()
         {
-            if (!Exists()) return;
+            if (!IsExists()) return;
 
             File.Delete(this.Location);
         }
