@@ -48,12 +48,9 @@ namespace kawtn.IO
         {
             if (!IsExists()) return null;
 
-            if (IsDirectory())
-            {
-                return Path.GetDirectoryName(this.Data);
-            }
+            Item item = new(this.Data);
 
-            return Path.GetFileName(this.Data);
+            return Path.GetFileName(item.Location.Data);
         }
 
         string? GetParentPath()
