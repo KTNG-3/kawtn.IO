@@ -27,19 +27,22 @@ namespace kawtn.IO
             return File.Exists(this.Location.Data);
         }
 
-        public string? GetName()
+        public FileInfo GetInfo()
         {
-            return Location.GetName();
+            return new(this.Location.Data);
+        }
+
+        public string GetName()
+        {
+            return GetInfo().Name;
         }
 
         public Inventory? GetParent()
         {
-            return Location.GetParent();
-        }
+            string? path = Path.GetDirectoryName(this.Location.Data);
+            if (path == null) return null;
 
-        public FileInfo GetInfo()
-        {
-            return new(this.Location.Data);
+            return new(path);
         }
 
         bool HasAttributes(FileAttributes attributes)
@@ -131,10 +134,7 @@ namespace kawtn.IO
 
         public Item? InsertTo(Inventory destination)
         {
-            string? name = GetName();
-            if (name == null) return null;
-
-            Item item = new Location(destination, name).ParseItem();
+            Item item = new Location(destination, GetName()).ParseItem();
 
             Clone(item);
 

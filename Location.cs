@@ -44,50 +44,6 @@ namespace kawtn.IO
             return File.GetAttributes(this.Data).HasFlag(FileAttributes.Directory);
         }
 
-        public string? GetName()
-        {
-            if (!IsExists()) return null;
-
-            Item item = new(this.Data);
-
-            return Path.GetFileName(item.Location.Data);
-        }
-
-        string? GetParentPath()
-        {
-            if (!IsExists()) return null;
-
-            if (IsItem())
-            {
-                return Path.GetDirectoryName(this.Data);
-            }
-
-            DirectoryInfo? parent = Directory.GetParent(this.Data);
-
-            if (parent == null)
-            {
-                return null;
-            }
-            else
-            {
-                return parent.FullName;
-            }
-        }
-
-        public Inventory? GetParent()
-        {
-            string? path = GetParentPath();
-
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return null;
-            }
-            else
-            {
-                return new(path);
-            }
-        }
-
         public Inventory? GetRoot()
         {
             string? path = Path.GetPathRoot(this.Data);

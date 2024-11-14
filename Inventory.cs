@@ -37,19 +37,22 @@ namespace kawtn.IO
             return Read().Length == 0;
         }
 
-        public string? GetName()
+        public DirectoryInfo GetInfo()
         {
-            return Location.GetName();
+            return new(this.Location.Data);
+        }
+
+        public string GetName()
+        {
+            return GetInfo().Name;
         }
 
         public Inventory? GetParent()
         {
-            return Location.GetParent();
-        }
+            DirectoryInfo? dir = GetInfo().Parent;
+            if (dir == null) return null;
 
-        public DirectoryInfo GetInfo()
-        {
-            return new(this.Location.Data);
+            return new(dir.FullName);
         }
 
         bool HasAttributes(FileAttributes attributes)
@@ -167,10 +170,7 @@ namespace kawtn.IO
 
         public Inventory? InsertTo(Inventory destination)
         {
-            string? name = GetName();
-            if (name == null) return null;
-
-            Inventory? inventory = new Location(destination, name).ParseInventory();
+            Inventory? inventory = new Location(destination, GetName()).ParseInventory();
 
             Clone(inventory);
 
