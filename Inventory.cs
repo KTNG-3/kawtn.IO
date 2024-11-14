@@ -93,14 +93,14 @@ namespace kawtn.IO
             }
         }
 
-        public Item Insert(Item item)
+        public Item? Insert(Item item)
         {
             Create();
 
             return item.InsertTo(this);
         }
 
-        public Inventory Insert(Inventory inventory)
+        public Inventory? Insert(Inventory inventory)
         {
             Create();
 
@@ -170,18 +170,21 @@ namespace kawtn.IO
             Delete();
         }
 
-        public Inventory InsertTo(Inventory destination)
+        public Inventory? InsertTo(Inventory destination)
         {
-            Inventory inventory = new Location(destination, GetName()).ParseInventory();
+            string? name = GetName();
+            if (name == null) return null;
+
+            Inventory? inventory = new Location(destination, name).ParseInventory();
 
             Clone(inventory);
 
             return inventory;
         }
 
-        public Inventory TransferTo(Inventory destination)
+        public Inventory? TransferTo(Inventory destination)
         {
-            Inventory inventory = InsertTo(destination);
+            Inventory? inventory = InsertTo(destination);
 
             Delete();
 

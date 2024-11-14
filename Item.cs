@@ -128,18 +128,21 @@ namespace kawtn.IO
             Delete();
         }
 
-        public Item InsertTo(Inventory destination)
+        public Item? InsertTo(Inventory destination)
         {
-            Item item = new Location(destination, GetName()).ParseItem();
+            string? name = GetName();
+            if (name == null) return null;
+
+            Item item = new Location(destination, name).ParseItem();
 
             Clone(item);
 
             return item;
         }
 
-        public Item TransferTo(Inventory destination)
+        public Item? TransferTo(Inventory destination)
         {
-            Item item = InsertTo(destination);
+            Item? item = InsertTo(destination);
 
             Delete();
 
