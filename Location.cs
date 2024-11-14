@@ -77,7 +77,7 @@ namespace kawtn.IO
             }
         }
 
-        public Location? GetParent()
+        public Inventory? GetParent()
         {
             string? path = GetParentPath();
 
@@ -91,9 +91,18 @@ namespace kawtn.IO
             }
         }
 
-        public string GetRoot()
+        public Inventory? GetRoot()
         {
-            return Path.GetPathRoot(this.Data) ?? string.Empty;
+            string? path = Path.GetPathRoot(this.Data);
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return null;
+            }
+            else
+            {
+                return new(path);
+            }
         }
 
         public Item ParseItem()

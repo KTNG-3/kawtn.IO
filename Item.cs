@@ -12,13 +12,15 @@ namespace kawtn.IO
     {
         public readonly Location Location;
 
-        public Item(Location location)
+        public Item(string location)
         {
-            this.Location = location;
+            string path = Path.TrimEndingDirectorySeparator(location);
+
+            this.Location = new(path);
         }
 
-        public Item(string location) 
-            : this(new Location(location)) { }
+        public Item(Location location) 
+            : this(location.Data) { }
 
         public bool IsExists()
         {
@@ -32,16 +34,7 @@ namespace kawtn.IO
 
         public Inventory? GetParent()
         {
-            Location? location = Location.GetParent();
-
-            if (location == null)
-            {
-                return null;
-            }
-            else
-            {
-                return location.ParseInventory();
-            }
+            return Location.GetParent();
         }
 
         public FileInfo GetInfo()
@@ -51,21 +44,29 @@ namespace kawtn.IO
 
         bool HasAttributes(FileAttributes attributes)
         {
-            return this.GetInfo().Attributes.HasFlag(attributes);
+            return File.GetAttributes(this.Location.Data).HasFlag(attributes);
         }
 
         void AddAttributes(FileAttributes attributes)
         {
-            FileInfo read = this.GetInfo();
+            if (HasAttributes(attributes)) return;
 
-            read.Attributes |= ~attributes;
+            FileAttributes fileAttributes = File.GetAttributes(this.Location.Data);
+            
+            fileAttributes |= attributes;
+
+            File.SetAttributes(this.Location.Data, fileAttributes);
         }
 
         void RemoveAttributes(FileAttributes attributes)
         {
-            FileInfo read = this.GetInfo();
+            if (!HasAttributes(attributes)) return;
 
-            read.Attributes &= ~attributes;
+            FileAttributes fileAttributes = File.GetAttributes(this.Location.Data);
+
+            fileAttributes &= ~attributes;
+
+            File.SetAttributes(this.Location.Data, fileAttributes);
         }
 
         public void Create()

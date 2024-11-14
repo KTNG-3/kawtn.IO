@@ -13,6 +13,10 @@
     <AssemblyVersion>2.2.0</AssemblyVersion>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <Version>$(AssemblyVersion)</Version>
+    <Description>kawtn's files helper for C#
+and alternative to the built-in file system</Description>
+    <RepositoryUrl>https://github.com/KTNG-3/kawtn.IO</RepositoryUrl>
+    <PackageTags>fs,file,directory,system,alternative</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -13,13 +13,19 @@ namespace kawtn.IO
     {
         public readonly Location Location;
 
-        public Inventory(Location location)
+        public Inventory(string location)
         {
-            this.Location = location;
+            if (!location.EndsWith(Path.DirectorySeparatorChar)
+                && !location.EndsWith(Path.AltDirectorySeparatorChar))
+            {
+                location += Path.AltDirectorySeparatorChar;
+            }
+
+            this.Location = new(location);
         }
 
-        public Inventory(string location) 
-            : this(new Location(location)) { }
+        public Inventory(Location location) 
+            : this(location.Data) { }
 
         public bool IsExists()
         {
@@ -38,16 +44,7 @@ namespace kawtn.IO
 
         public Inventory? GetParent()
         {
-            Location? location = Location.GetParent();
-
-            if (location == null)
-            {
-                return null;
-            }
-            else
-            {
-                return location.ParseInventory();
-            }
+            return Location.GetParent();
         }
 
         public DirectoryInfo GetInfo()
@@ -62,6 +59,8 @@ namespace kawtn.IO
 
         void AddAttributes(FileAttributes attributes)
         {
+            if (HasAttributes(attributes)) return;
+
             DirectoryInfo read = this.GetInfo();
 
             read.Attributes |= attributes;
@@ -69,6 +68,8 @@ namespace kawtn.IO
 
         void RemoveAttributes(FileAttributes attributes)
         {
+            if (!HasAttributes(attributes)) return;
+
             DirectoryInfo read = this.GetInfo();
 
             read.Attributes &= ~attributes;
@@ -119,9 +120,6 @@ namespace kawtn.IO
 
         public Item[] ReadItems()
         {
-            if (!IsExists())
-                return Array.Empty<Item>();
-
             return Directory.GetFiles(this.Location.Data)
                 .Select(x => new Item(x))
                 .ToArray();
@@ -129,9 +127,6 @@ namespace kawtn.IO
 
         public Inventory[] ReadInventories()
         {
-            if (!IsExists())
-                return Array.Empty<Inventory>();
-
             return Directory.GetDirectories(this.Location.Data)
                 .Select(x => new Inventory(x))
                 .ToArray();
@@ -146,7 +141,7 @@ namespace kawtn.IO
         {
             if (!IsExists()) return;
 
-            if (!IsEmpty())
+            if (!destination.IsEmpty())
             {
                 throw new IOException("inventory not empty");
             }
