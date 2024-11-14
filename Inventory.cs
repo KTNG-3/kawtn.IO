@@ -26,6 +26,11 @@ namespace kawtn.IO
             return Directory.Exists(this.Location.Data);
         }
 
+        public bool IsEmpty()
+        {
+            return Read().Length == 0;
+        }
+
         public string? GetName()
         {
             return Location.GetName();
@@ -50,11 +55,42 @@ namespace kawtn.IO
             return new(this.Location.Data);
         }
 
+        bool HasAttributes(FileAttributes attributes)
+        {
+            return this.GetInfo().Attributes.HasFlag(attributes);
+        }
+
+        void AddAttributes(FileAttributes attributes)
+        {
+            DirectoryInfo read = this.GetInfo();
+
+            read.Attributes |= attributes;
+        }
+
+        void RemoveAttributes(FileAttributes attributes)
+        {
+            DirectoryInfo read = this.GetInfo();
+
+            read.Attributes &= ~attributes;
+        }
+
         public void Create()
         {
             if (IsExists()) return;
 
             Directory.CreateDirectory(this.Location.Data);
+        }
+
+        public void Hidden(bool hidden = true)
+        {
+            if (hidden)
+            {
+                AddAttributes(FileAttributes.Hidden);
+            }
+            else
+            {
+                RemoveAttributes(FileAttributes.Hidden);
+            }
         }
 
         public Item Insert(Item item)
@@ -109,6 +145,11 @@ namespace kawtn.IO
         public void Clone(Inventory destination)
         {
             if (!IsExists()) return;
+
+            if (!IsEmpty())
+            {
+                throw new IOException("inventory not empty");
+            }
 
             destination.Create();
 

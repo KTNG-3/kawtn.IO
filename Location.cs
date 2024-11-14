@@ -91,6 +91,11 @@ namespace kawtn.IO
             }
         }
 
+        public string GetRoot()
+        {
+            return Path.GetPathRoot(this.Data) ?? string.Empty;
+        }
+
         public Item ParseItem()
         {
             return new(this);

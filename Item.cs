@@ -49,6 +49,25 @@ namespace kawtn.IO
             return new(this.Location.Data);
         }
 
+        bool HasAttributes(FileAttributes attributes)
+        {
+            return this.GetInfo().Attributes.HasFlag(attributes);
+        }
+
+        void AddAttributes(FileAttributes attributes)
+        {
+            FileInfo read = this.GetInfo();
+
+            read.Attributes |= ~attributes;
+        }
+
+        void RemoveAttributes(FileAttributes attributes)
+        {
+            FileInfo read = this.GetInfo();
+
+            read.Attributes &= ~attributes;
+        }
+
         public void Create()
         {
             if (IsExists()) return;
@@ -57,6 +76,18 @@ namespace kawtn.IO
             if (parent != null) parent.Create();
 
             File.WriteAllBytes(this.Location.Data, Array.Empty<byte>());
+        }
+
+        public void Hidden(bool hidden = true)
+        {
+            if (hidden)
+            {
+                AddAttributes(FileAttributes.Hidden);
+            }
+            else
+            {
+                RemoveAttributes(FileAttributes.Hidden);
+            }
         }
 
         public void Write(byte[] data)
