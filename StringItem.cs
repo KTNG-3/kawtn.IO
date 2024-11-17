@@ -8,7 +8,7 @@ namespace kawtn.IO
 {
     public class StringItem : Item
     {
-        public StringItem(string path) : base(path)
+        public StringItem(string location) : base(location)
         {
 
         }

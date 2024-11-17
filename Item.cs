@@ -11,12 +11,14 @@ namespace kawtn.IO
     public class Item
     {
         public readonly Location Location;
+        protected readonly Attributes Attributes;
 
         public Item(string location)
         {
             string path = Path.TrimEndingDirectorySeparator(location);
 
             this.Location = new(path);
+            this.Attributes = new(this.Location);
         }
 
         public Item(Location location) 
@@ -45,33 +47,6 @@ namespace kawtn.IO
             return new(path);
         }
 
-        bool HasAttributes(FileAttributes attributes)
-        {
-            return File.GetAttributes(this.Location.Data).HasFlag(attributes);
-        }
-
-        void AddAttributes(FileAttributes attributes)
-        {
-            if (HasAttributes(attributes)) return;
-
-            FileAttributes fileAttributes = File.GetAttributes(this.Location.Data);
-            
-            fileAttributes |= attributes;
-
-            File.SetAttributes(this.Location.Data, fileAttributes);
-        }
-
-        void RemoveAttributes(FileAttributes attributes)
-        {
-            if (!HasAttributes(attributes)) return;
-
-            FileAttributes fileAttributes = File.GetAttributes(this.Location.Data);
-
-            fileAttributes &= ~attributes;
-
-            File.SetAttributes(this.Location.Data, fileAttributes);
-        }
-
         public void Create()
         {
             if (IsExists()) return;
@@ -86,11 +61,11 @@ namespace kawtn.IO
         {
             if (hidden)
             {
-                AddAttributes(FileAttributes.Hidden);
+                this.Attributes.Add(FileAttributes.Hidden);
             }
             else
             {
-                RemoveAttributes(FileAttributes.Hidden);
+                this.Attributes.Remove(FileAttributes.Hidden);
             }
         }
 
@@ -124,6 +99,9 @@ namespace kawtn.IO
             if (!IsExists()) return;
 
             destination.Write(Read());
+
+            FileAttributes read = this.Attributes.Get();
+            destination.Attributes.Set(read);
         }
 
         public void Move(Item destination)

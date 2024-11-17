@@ -12,6 +12,7 @@ namespace kawtn.IO
     public class Inventory
     {
         public readonly Location Location;
+        protected readonly Attributes Attributes;
 
         public Inventory(string location)
         {
@@ -22,6 +23,7 @@ namespace kawtn.IO
             }
 
             this.Location = new(location);
+            this.Attributes = new(this.Location);
         }
 
         public Inventory(Location location) 
@@ -55,29 +57,6 @@ namespace kawtn.IO
             return new(dir.FullName);
         }
 
-        bool HasAttributes(FileAttributes attributes)
-        {
-            return this.GetInfo().Attributes.HasFlag(attributes);
-        }
-
-        void AddAttributes(FileAttributes attributes)
-        {
-            if (HasAttributes(attributes)) return;
-
-            DirectoryInfo read = this.GetInfo();
-
-            read.Attributes |= attributes;
-        }
-
-        void RemoveAttributes(FileAttributes attributes)
-        {
-            if (!HasAttributes(attributes)) return;
-
-            DirectoryInfo read = this.GetInfo();
-
-            read.Attributes &= ~attributes;
-        }
-
         public void Create()
         {
             if (IsExists()) return;
@@ -89,11 +68,11 @@ namespace kawtn.IO
         {
             if (hidden)
             {
-                AddAttributes(FileAttributes.Hidden);
+                this.Attributes.Add(FileAttributes.Hidden);
             }
             else
             {
-                RemoveAttributes(FileAttributes.Hidden);
+                this.Attributes.Remove(FileAttributes.Hidden);
             }
         }
 
@@ -160,6 +139,9 @@ namespace kawtn.IO
             {
                 inventory.InsertTo(destination);
             }
+
+            FileAttributes read = this.Attributes.Get();
+            destination.Attributes.Set(read);
         }
 
         public void Move(Inventory destination)

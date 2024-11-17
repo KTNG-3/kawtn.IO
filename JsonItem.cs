@@ -12,7 +12,7 @@ namespace kawtn.IO
     {
         readonly T? defaultValue = default;
 
-        public JsonItem(string path, T? defaultValue = default) : base(path)
+        public JsonItem(string location, T? defaultValue = default) : base(location)
         {
             this.defaultValue = defaultValue;
         }
