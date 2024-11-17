@@ -29,6 +29,9 @@ namespace kawtn.IO
         public Inventory(Location location) 
             : this(location.Data) { }
 
+        public Inventory()
+            : this(new Location(ApplicationInventory.Temporary, Path.GetRandomFileName())) { }
+
         public bool IsExists()
         {
             return Directory.Exists(this.Location.Data);
@@ -37,6 +40,18 @@ namespace kawtn.IO
         public bool IsEmpty()
         {
             return Read().Length == 0;
+        }
+
+        public void Hidden(bool hidden = true)
+        {
+            if (hidden)
+            {
+                this.Attributes.Add(FileAttributes.Hidden);
+            }
+            else
+            {
+                this.Attributes.Remove(FileAttributes.Hidden);
+            }
         }
 
         public DirectoryInfo GetInfo()
@@ -64,26 +79,28 @@ namespace kawtn.IO
             Directory.CreateDirectory(this.Location.Data);
         }
 
-        public void Hidden(bool hidden = true)
+        public Item CreateItem(string name)
         {
-            if (hidden)
-            {
-                this.Attributes.Add(FileAttributes.Hidden);
-            }
-            else
-            {
-                this.Attributes.Remove(FileAttributes.Hidden);
-            }
+            Location location = new(this, name);
+
+            return new(location);
         }
 
-        public Item? Insert(Item item)
+        public Inventory CreateInventory(string name)
+        {
+            Location location = new(this, name);
+
+            return new(location);
+        }
+
+        public Item Insert(Item item)
         {
             Create();
 
             return item.InsertTo(this);
         }
 
-        public Inventory? Insert(Inventory inventory)
+        public Inventory Insert(Inventory inventory)
         {
             Create();
 
@@ -150,18 +167,18 @@ namespace kawtn.IO
             Delete();
         }
 
-        public Inventory? InsertTo(Inventory destination)
+        public Inventory InsertTo(Inventory destination)
         {
-            Inventory? inventory = new Location(destination, GetName()).ParseInventory();
+            Inventory inventory = destination.CreateInventory(GetName());
 
             Clone(inventory);
 
             return inventory;
         }
 
-        public Inventory? TransferTo(Inventory destination)
+        public Inventory TransferTo(Inventory destination)
         {
-            Inventory? inventory = InsertTo(destination);
+            Inventory inventory = InsertTo(destination);
 
             Delete();
 

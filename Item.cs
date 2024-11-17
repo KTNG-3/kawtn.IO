@@ -21,8 +21,11 @@ namespace kawtn.IO
             this.Attributes = new(this.Location);
         }
 
-        public Item(Location location) 
+        public Item(Location location)
             : this(location.Data) { }
+
+        public Item()
+            : this(new Location(ApplicationInventory.Temporary, Path.GetRandomFileName())) { }
 
         public bool IsExists()
         {
@@ -110,18 +113,18 @@ namespace kawtn.IO
             Delete();
         }
 
-        public Item? InsertTo(Inventory destination)
+        public Item InsertTo(Inventory destination)
         {
-            Item item = new Location(destination, GetName()).ParseItem();
+            Item item = destination.CreateItem(GetName());
 
             Clone(item);
 
             return item;
         }
 
-        public Item? TransferTo(Inventory destination)
+        public Item TransferTo(Inventory destination)
         {
-            Item? item = InsertTo(destination);
+            Item item = InsertTo(destination);
 
             Delete();
 

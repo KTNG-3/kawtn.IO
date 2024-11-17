@@ -17,6 +17,9 @@ namespace kawtn.IO
             this.defaultValue = defaultValue;
         }
 
+        public JsonItem(Location location, T? defaultValue = default)
+            : this(location.Data, defaultValue) { }
+
         public void Write(T data)
         {
             base.Write(JsonSerializer.Serialize(data));

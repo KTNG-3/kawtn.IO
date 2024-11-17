@@ -10,10 +10,11 @@ namespace kawtn.IO
 {
     public class KeyValueItem : JsonItem<Dictionary<string, string>>
     {
-        public KeyValueItem(string location) : base(location, defaultValue: new())
-        {
-            
-        }
+        public KeyValueItem(string location) 
+            : base(location, defaultValue: new()) { }
+
+        public KeyValueItem(Location location)
+            : this(location.Data) { }
 
         public void Write(string key, string value)
         {

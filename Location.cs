@@ -63,7 +63,17 @@ namespace kawtn.IO
             return new(this);
         }
 
+        public JsonItem<T> ParseJsonItem<T>()
+        {
+            return new(this);
+        }
+
         public Inventory ParseInventory()
+        {
+            return new(this);
+        }
+
+        public JsonInventory<T> ParseJsonInventory<T>()
         {
             return new(this);
         }

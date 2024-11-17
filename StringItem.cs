@@ -8,10 +8,11 @@ namespace kawtn.IO
 {
     public class StringItem : Item
     {
-        public StringItem(string location) : base(location)
-        {
+        public StringItem(string location)
+            : base(location) { }
 
-        }
+        public StringItem(Location location)
+            : this(location.Data) { }
 
         public void Write(string data)
         {
