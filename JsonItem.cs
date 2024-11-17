@@ -30,7 +30,7 @@ namespace kawtn.IO
             return base.Read();
         }
 
-        public new T Read()
+        public new T? Read()
         {
             string read = ReadString();
 
@@ -41,19 +41,20 @@ namespace kawtn.IO
                 return Read();
             }
 
-            T? data = JsonSerializer.Deserialize<T>(read);
-
-            if (data != null)
+            try
             {
-                return data;
+                return JsonSerializer.Deserialize<T>(read);
             }
+            catch { }
 
-            throw new NullReferenceException(this.Location.Data);
+            return default;
         }
 
         public void Edit(Func<T, T> editor)
         {
-            T read = Read();
+            T? read = Read();
+            if (read == null) return;
+
             T data = editor.Invoke(read);
 
             Write(data);

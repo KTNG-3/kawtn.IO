@@ -38,21 +38,34 @@ namespace kawtn.IO
 
         public new T[] Read()
         {
-            return base.ReadItems()
-                .Select(x =>
-                {
-                    JsonItem<T> item = new(x.Location);
+            List<T> list = new();
 
-                    return item.Read();
-                })
-                .ToArray();
+            foreach (Item baseItem in base.ReadItems())
+            {
+                JsonItem<T> item = new(baseItem.Location);
+
+                T? data = item.Read();
+                if (data != null)
+                {
+                    list.Add(data);
+                }
+            }
+
+            return list.ToArray();
         }
 
-        public T Read(string name)
+        public T? Read(string name)
         {
             JsonItem<T> item = this.CreateItem(name);
 
             return item.Read();
+        }
+
+        public void Edit(string name, Func<T, T> editor)
+        {
+            JsonItem<T> item = this.CreateItem(name);
+
+            item.Edit(editor);
         }
 
         public void Delete(string name)

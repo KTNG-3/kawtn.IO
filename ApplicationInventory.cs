@@ -25,7 +25,7 @@ namespace kawtn.IO
             Temporary = new(tempPath);
         }
 
-        public static Inventory GetInventory(params string[] path)
+        public static Inventory Get(params string[] path)
         {
             string joinPath = Path.Join(path);
 
@@ -38,11 +38,11 @@ namespace kawtn.IO
             return new(joinPath);
         }
 
-        public static Inventory GetInventoryByOS(string windows, string macos, string linux)
+        public static Inventory GetByOS(string windows, string macos, string linux)
         {
-            if (IsWindows) return GetInventory(windows);
-            if (IsMacOS) return GetInventory(macos);
-            if (IsLinux) return GetInventory(linux);
+            if (IsWindows) return Get(windows);
+            if (IsMacOS) return Get(macos);
+            if (IsLinux) return Get(linux);
 
             throw new PlatformNotSupportedException();
         }
