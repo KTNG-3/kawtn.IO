@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace kawtn.IO
+namespace kawtn.IO.External
 {
     public static class ApplicationInventory
     {

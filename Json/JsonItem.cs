@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace kawtn.IO
+namespace kawtn.IO.Json
 {
     public class JsonItem<T> : StringItem
     {
@@ -22,7 +22,7 @@ namespace kawtn.IO
 
         public void Write(T data)
         {
-            base.Write(JsonSerializer.Serialize(data));
+            Write(JsonSerializer.Serialize(data));
         }
 
         public string ReadString()
@@ -34,7 +34,7 @@ namespace kawtn.IO
         {
             string read = ReadString();
 
-            if (string.IsNullOrWhiteSpace(read) && this.defaultValue != null)
+            if (string.IsNullOrWhiteSpace(read) && defaultValue != null)
             {
                 Write(defaultValue);
 

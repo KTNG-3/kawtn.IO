@@ -6,11 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace kawtn.IO
+namespace kawtn.IO.Json
 {
     public class KeyValueItem : JsonItem<Dictionary<string, string>>
     {
-        public KeyValueItem(string location) 
+        public KeyValueItem(string location)
             : base(location, defaultValue: new()) { }
 
         public KeyValueItem(Location location)
@@ -18,7 +18,7 @@ namespace kawtn.IO
 
         public bool IsExists(string key)
         {
-            Dictionary<string, string>? data = base.Read();
+            Dictionary<string, string>? data = Read();
             if (data == null) return false;
 
             return data.ContainsKey(key);
@@ -26,7 +26,7 @@ namespace kawtn.IO
 
         public void Write(string key, string value)
         {
-            base.Edit(x =>
+            Edit(x =>
             {
                 x[key] = value;
 
@@ -36,7 +36,7 @@ namespace kawtn.IO
 
         public string? Read(string key)
         {
-            Dictionary<string, string>? data = base.Read();
+            Dictionary<string, string>? data = Read();
             if (data == null) return null;
             if (!data.TryGetValue(key, out string? value)) return null;
 
@@ -45,7 +45,7 @@ namespace kawtn.IO
 
         public void Delete(string key)
         {
-            base.Edit(x =>
+            Edit(x =>
             {
                 x.Remove(key);
 

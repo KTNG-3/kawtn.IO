@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace kawtn.IO
+namespace kawtn.IO.Json
 {
     public class JsonInventory<T> : Inventory
     {
@@ -31,7 +31,7 @@ namespace kawtn.IO
 
         public void Write(string name, T data)
         {
-            JsonItem<T> item = this.CreateItem(name);
+            JsonItem<T> item = CreateItem(name);
 
             item.Write(data);
         }
@@ -40,7 +40,7 @@ namespace kawtn.IO
         {
             List<T> list = new();
 
-            foreach (Item baseItem in base.ReadItems())
+            foreach (Item baseItem in ReadItems())
             {
                 JsonItem<T> item = new(baseItem.Location);
 
@@ -56,14 +56,14 @@ namespace kawtn.IO
 
         public T? Read(string name)
         {
-            JsonItem<T> item = this.CreateItem(name);
+            JsonItem<T> item = CreateItem(name);
 
             return item.Read();
         }
 
         public void Edit(string name, Func<T, T> editor)
         {
-            JsonItem<T> item = this.CreateItem(name);
+            JsonItem<T> item = CreateItem(name);
 
             item.Edit(editor);
         }
