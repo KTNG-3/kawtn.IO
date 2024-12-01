@@ -47,6 +47,11 @@ namespace kawtn.IO.Konfig
 
     static class Parser
     {
+        static char Character(string value)
+        {
+            return char.Parse(value);
+        }
+
         static int Integer(string value)
         {
             return int.Parse(value);
@@ -57,7 +62,7 @@ namespace kawtn.IO.Konfig
             return float.Parse(value);
         }
 
-        static bool Boolean(string value)
+        static bool Bool(string value)
         {
             if (int.TryParse(value, out int vInt))
             {
@@ -79,21 +84,19 @@ namespace kawtn.IO.Konfig
             if (elementType == null) return null;
 
             if (elementType == typeof(string))
-            {
-                return (string[])obj;
-            }
-            else if (elementType == typeof(int))
-            {
+                return Array.ConvertAll((string[])obj, x => (object)x);
+
+            if (elementType == typeof(char))
+                return Array.ConvertAll((char[])obj, x => (object)x);
+
+            if (elementType == typeof(int))
                 return Array.ConvertAll((int[])obj, x => (object)x);
-            }
-            else if (elementType == typeof(float))
-            {
+
+            if (elementType == typeof(float))
                 return Array.ConvertAll((float[])obj, x => (object)x);
-            }
-            else if (elementType == typeof(bool))
-            {
+
+            if (elementType == typeof(bool))
                 return Array.ConvertAll((bool[])obj, x => (object)x);
-            }
 
             return (object[])obj;
         }
@@ -120,7 +123,7 @@ namespace kawtn.IO.Konfig
                 return str.ToLower();
             }
 
-            if (type == typeof(int) || type == typeof(float))
+            if (type == typeof(char) || type == typeof(int) || type == typeof(float))
             {
                 return str;
             }
@@ -163,6 +166,7 @@ namespace kawtn.IO.Konfig
 
             return members.ToArray();
         }
+
 
         static MemberInfo? GetMember(Type type, string key)
         {
@@ -230,6 +234,9 @@ namespace kawtn.IO.Konfig
             if (type == typeof(string))
                 return SetMemberValue(member, obj, value);
 
+            if (type == typeof(char))
+                return SetMemberValue(member, obj, Character(value));
+
             if (type == typeof(int))
                 return SetMemberValue(member, obj, Integer(value));
 
@@ -237,7 +244,7 @@ namespace kawtn.IO.Konfig
                 return SetMemberValue(member, obj, Float(value));
 
             if (type == typeof(bool))
-                return SetMemberValue(member, obj, Boolean(value));
+                return SetMemberValue(member, obj, Bool(value));
 
             if (type.IsEnum)
                 return SetMemberValue(member, obj, Enumeration(type, value));
@@ -256,6 +263,9 @@ namespace kawtn.IO.Konfig
             if (type == typeof(string))
                 return SetMemberValue(member, obj, values.ToArray());
 
+            if (type == typeof(char))
+                return SetMemberValue(member, obj, values.Select(Character).ToArray());
+
             if (type == typeof(int))
                 return SetMemberValue(member, obj, values.Select(Integer).ToArray());
 
@@ -263,7 +273,7 @@ namespace kawtn.IO.Konfig
                 return SetMemberValue(member, obj, values.Select(Float).ToArray());
 
             if (type == typeof(bool))
-                return SetMemberValue(member, obj, values.Select(Boolean).ToArray());
+                return SetMemberValue(member, obj, values.Select(Bool).ToArray());
 
             if (type.IsEnum)
                 return SetMemberValue(member, obj, values.Select(x => Enumeration(type, x)).ToArray());
