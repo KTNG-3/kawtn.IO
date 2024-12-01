@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using System.Collections.Generic;
 
 namespace kawtn.IO.Json
 {
     public class KeyValueItem : JsonItem<Dictionary<string, string>>
     {
         public KeyValueItem(string location)
-            : base(location, defaultValue: new()) { }
+            : base(location, defaultValue: new Dictionary<string, string>()) { }
 
         public KeyValueItem(Location location)
             : this(location.Data) { }
 
         public bool IsExists(string key)
         {
-            Dictionary<string, string>? data = Read();
+            Dictionary<string, string>? data = base.Read();
             if (data == null) return false;
 
             return data.ContainsKey(key);
@@ -36,7 +30,7 @@ namespace kawtn.IO.Json
 
         public string? Read(string key)
         {
-            Dictionary<string, string>? data = Read();
+            Dictionary<string, string>? data = base.Read();
             if (data == null) return null;
             if (!data.TryGetValue(key, out string? value)) return null;
 

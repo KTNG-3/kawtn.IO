@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+
 using kawtn.IO.External;
 
 namespace kawtn.IO
@@ -23,8 +21,8 @@ namespace kawtn.IO
                 location += Path.AltDirectorySeparatorChar;
             }
 
-            this.Location = new(location);
-            this.Attributes = new(this.Location);
+            this.Location = new Location(location);
+            this.Attributes = new Attributes(this.Location);
         }
 
         public Inventory(Location location) 
@@ -57,7 +55,7 @@ namespace kawtn.IO
 
         public DirectoryInfo GetInfo()
         {
-            return new(this.Location.Data);
+            return new DirectoryInfo(this.Location.Data);
         }
 
         public string GetName()
@@ -70,7 +68,7 @@ namespace kawtn.IO
             DirectoryInfo? dir = GetInfo().Parent;
             if (dir == null) return null;
 
-            return new(dir.FullName);
+            return new Inventory(dir.FullName);
         }
 
         public void Create()
@@ -82,16 +80,16 @@ namespace kawtn.IO
 
         public Item CreateItem(string name)
         {
-            Location location = new(this, name);
+            Location location = new Location(this, name);
 
-            return new(location);
+            return new Item(location);
         }
 
         public Inventory CreateInventory(string name)
         {
-            Location location = new(this, name);
+            Location location = new Location(this, name);
 
-            return new(location);
+            return new Inventory(location);
         }
 
         public Item Insert(Item item)

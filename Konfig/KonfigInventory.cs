@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using kawtn.IO.Json;
 
 namespace kawtn.IO.Konfig
 {
     public class KonfigInventory<T> : Inventory
+        where T : class
     {
         public KonfigInventory(string location)
             : base(location) { }
@@ -24,7 +21,7 @@ namespace kawtn.IO.Konfig
 
         public new KonfigItem<T> CreateItem(string name)
         {
-            Location location = new(this, name);
+            Location location = new Location(this, name);
 
             return new KonfigItem<T>(location);
         }
@@ -38,11 +35,11 @@ namespace kawtn.IO.Konfig
 
         public new T[] Read()
         {
-            List<T> list = new();
+            List<T> list = new List<T>();
 
             foreach (Item baseItem in ReadItems())
             {
-                KonfigItem<T> item = new(baseItem.Location);
+                KonfigItem<T> item = new KonfigItem<T>(baseItem.Location);
 
                 T? data = item.Read();
                 if (data != null)

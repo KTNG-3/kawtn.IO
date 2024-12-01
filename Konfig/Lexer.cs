@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace kawtn.IO.Konfig
 {
@@ -43,7 +40,7 @@ namespace kawtn.IO.Konfig
     class Lexer
     {
         int index = -1;
-        readonly List<Token> list = new();
+        readonly List<Token> list = new List<Token>();
 
         Token Next()
         {
@@ -55,7 +52,7 @@ namespace kawtn.IO.Konfig
         {
             list.Clear();
 
-            Dictionary<char, TokenType> specific = new()
+            Dictionary<char, TokenType> specific = new Dictionary<char, TokenType>()
             {
                 { '\n', TokenType.NewLine },
                 { '\\', TokenType.Backslash },
@@ -68,7 +65,7 @@ namespace kawtn.IO.Konfig
                 { ']', TokenType.RightSquareBracket }
             };
 
-            StringBuilder strBuilder = new();
+            StringBuilder strBuilder = new StringBuilder();
 
             foreach (char c in content)
             {
@@ -78,11 +75,11 @@ namespace kawtn.IO.Konfig
 
                     if (!string.IsNullOrWhiteSpace(value))
                     {
-                        list.Add(new(TokenType.String, value));
+                        list.Add(new Token(TokenType.String, value));
                         strBuilder.Clear();
                     }
 
-                    list.Add(new(type, c.ToString()));
+                    list.Add(new Token(type, c.ToString()));
                 }
                 else
                 {
@@ -90,8 +87,8 @@ namespace kawtn.IO.Konfig
                 }
             }
 
-            list.Add(new(TokenType.End));
-            list.Add(new(TokenType.EndOfFile));
+            list.Add(new Token(TokenType.End));
+            list.Add(new Token(TokenType.EndOfFile));
         }
 
         bool EOF(Token token)
@@ -125,12 +122,12 @@ namespace kawtn.IO.Konfig
             if (!isTable)
                 return false;
 
-            list.Insert(index, new(TokenType.End)); index++;
+            list.Insert(index, new Token(TokenType.End)); index++;
 
             string name = list[index + 1].Value;
 
             list.RemoveRange(index, 3);
-            list.Insert(index, new(TokenType.Table, name));
+            list.Insert(index, new Token(TokenType.Table, name));
 
             return true;
         }
@@ -143,19 +140,19 @@ namespace kawtn.IO.Konfig
             if (!isList)
                 return false;
 
-            list.Insert(index, new(TokenType.End)); index++;
+            list.Insert(index, new Token(TokenType.End)); index++;
 
             string name = list[index + 1].Value;
 
             list.RemoveRange(index, 3);
-            list.Insert(index, new(TokenType.List, name));
+            list.Insert(index, new Token(TokenType.List, name));
 
             return true;
         }
 
         bool quote = false;
         int quoteIndex = -1;
-        readonly StringBuilder quoteBuilder = new();
+        readonly StringBuilder quoteBuilder = new StringBuilder();
 
         void Quote(Token token)
         {
@@ -181,7 +178,7 @@ namespace kawtn.IO.Konfig
             }
 
             list.RemoveRange(quoteIndex, index - quoteIndex + 1);
-            list.Insert(quoteIndex, new(TokenType.String, quoteBuilder.ToString()));
+            list.Insert(quoteIndex, new Token(TokenType.String, quoteBuilder.ToString()));
 
             index = quoteIndex + 1;
         }
@@ -214,7 +211,7 @@ namespace kawtn.IO.Konfig
 
         public static string Untokenization(Token[] tokens)
         {
-            StringBuilder builder = new();
+            StringBuilder builder = new StringBuilder();
 
             foreach (Token token in tokens)
             {

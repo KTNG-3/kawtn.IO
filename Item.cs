@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using kawtn.IO.External;
 
 namespace kawtn.IO
@@ -16,10 +14,14 @@ namespace kawtn.IO
 
         public Item(string location)
         {
-            string path = Path.TrimEndingDirectorySeparator(location);
+            if (location.EndsWith(Path.DirectorySeparatorChar)
+                || location.EndsWith(Path.AltDirectorySeparatorChar))
+            {
+                location = location.Substring(0, location.Length - 1);
+            }
 
-            this.Location = new(path);
-            this.Attributes = new(this.Location);
+            this.Location = new Location(location);
+            this.Attributes = new Attributes(this.Location);
         }
 
         public Item(Location location)
@@ -35,7 +37,7 @@ namespace kawtn.IO
 
         public FileInfo GetInfo()
         {
-            return new(this.Location.Data);
+            return new FileInfo(this.Location.Data);
         }
 
         public string GetName()
@@ -48,7 +50,7 @@ namespace kawtn.IO
             string? path = Path.GetDirectoryName(this.Location.Data);
             if (path == null) return null;
 
-            return new(path);
+            return new Inventory(path);
         }
 
         public void Create()

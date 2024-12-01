@@ -1,23 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace kawtn.IO.Json
 {
-    public class JsonItem<T> : StringItem
+    public class JsonItem<T> : StringItem 
+        where T : class
     {
         readonly T? defaultValue = default;
 
-        public JsonItem(string location, T? defaultValue = default) : base(location)
+        public JsonItem(string location) 
+            : base(location) { }
+
+        public JsonItem(Location location)
+            : base(location.Data) { }
+
+        public JsonItem(string location, T defaultValue) : base(location)
         {
             this.defaultValue = defaultValue;
         }
 
-        public JsonItem(Location location, T? defaultValue = default)
+        public JsonItem(Location location, T defaultValue)
             : this(location.Data, defaultValue) { }
 
         public void Write(T data)

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kawtn.IO.External
 {
@@ -22,12 +19,12 @@ namespace kawtn.IO.External
             IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
             string tempPath = Path.Join(Path.GetTempPath(), $"kawtn.IO-{Path.GetRandomFileName()}");
-            Temporary = new(tempPath);
+            Temporary = new Inventory(tempPath);
         }
 
         public static Inventory Get(params string[] path)
         {
-            string joinPath = Path.Join(path);
+            string joinPath = Location.Join(path);
 
             if (IsWindows)
                 joinPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), joinPath);
@@ -35,7 +32,7 @@ namespace kawtn.IO.External
             if (IsMacOS)
                 joinPath = Path.Join("Library", "Application Support", joinPath);
 
-            return new(joinPath);
+            return new Inventory(joinPath);
         }
 
         public static Inventory GetByOS(string windows, string macos, string linux)

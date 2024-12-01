@@ -1,33 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace kawtn.IO.Konfig
 {
     class ParserValue
     {
-        public required string Key { get; set; }
-        public required string Value { get; set; }
+        public string Key { get; set; }
+        public string Value { get; set; }
+
+        public ParserValue(string key, string value)
+        {
+            this.Key = key;
+            this.Value = value;
+        }
     }
 
     class ParserTable
     {
-        public required string Key { get; set; }
-        public List<ParserValue> Values { get; set; } = new();
+        public string Key { get; set; }
+        public List<ParserValue> Values { get; set; }
+
+        public ParserTable(string key)
+        {
+            this.Key = key;
+            this.Values = new List<ParserValue>();
+        }
     }
 
     class ParserList
     {
-        public required string Key { get; set; }
-        public List<string> Values { get; set; } = new();
+        public string Key { get; set; }
+        public List<string> Values { get; set; }
+
+        public ParserList(string key)
+        {
+            this.Key = key;
+            this.Values = new List<string>();
+        }
     }
 
     static class Parser
@@ -177,12 +190,9 @@ namespace kawtn.IO.Konfig
 
             int i = 0;
 
-            ParserTable globalTable = new()
-            {
-                Key = string.Empty
-            };
-            List<ParserList> globalList = new();
-            List<ParserTable> tables = new();
+            ParserTable globalTable = new ParserTable(string.Empty);
+            List<ParserList> globalList = new List<ParserList>();
+            List<ParserTable> tables = new List<ParserTable>();
 
             ParserTable? table = null;
             ParserList? list = null;
@@ -212,18 +222,12 @@ namespace kawtn.IO.Konfig
 
                 if (token.Type == TokenType.Table)
                 {
-                    table = new()
-                    {
-                        Key = token.Value
-                    };
+                    table = new ParserTable(token.Value);
                 }
 
                 if (token.Type == TokenType.List)
                 {
-                    list = new()
-                    {
-                        Key = token.Value
-                    };
+                    list = new ParserList(token.Value);
                 }
 
                 if (token.Type == TokenType.String && list != null)
@@ -233,11 +237,10 @@ namespace kawtn.IO.Konfig
 
                 if (token.Type == TokenType.Equal)
                 {
-                    ParserValue data = new()
-                    {
-                        Key = tokens[i - 1].Value,
-                        Value = tokens[i + 1].Value
-                    };
+                    ParserValue data = new ParserValue(
+                        key: tokens[i - 1].Value,
+                        value: tokens[i + 1].Value
+                        );
 
                     if (table == null)
                     {
@@ -302,9 +305,9 @@ namespace kawtn.IO.Konfig
             if (obj == null)
                 return Array.Empty<Token>();
 
-            Dictionary<string, string> globalTable = new();
-            Dictionary<string, string[]> globalList = new();
-            Dictionary<string, Dictionary<string, string>> tables = new();
+            Dictionary<string, string> globalTable = new Dictionary<string, string>();
+            Dictionary<string, string[]> globalList = new Dictionary<string, string[]>();
+            Dictionary<string, Dictionary<string, string>> tables = new Dictionary<string, Dictionary<string, string>>();
 
             foreach (PropertyInfo property in obj.GetType().GetProperties())
             {
@@ -317,7 +320,7 @@ namespace kawtn.IO.Konfig
 
                 if (objList != null)
                 {
-                    List<string> objStrList = new();
+                    List<string> objStrList = new List<string>();
 
                     foreach (object vObj in objList)
                     {
@@ -341,7 +344,7 @@ namespace kawtn.IO.Konfig
                     continue;
                 }
 
-                Dictionary<string, string> values = new();
+                Dictionary<string, string> values = new Dictionary<string, string>();
 
                 foreach (PropertyInfo subProperty in value.GetType().GetProperties())
                 {
@@ -360,7 +363,7 @@ namespace kawtn.IO.Konfig
                     tables.Add(key, values);
             }
 
-            List<Token> tokens = new();
+            List<Token> tokens = new List<Token>();
 
             foreach (string key in globalTable.Keys)
             {
@@ -368,10 +371,10 @@ namespace kawtn.IO.Konfig
 
                 tokens.AddRange(new Token[]
                 {
-                    new(TokenType.String, key),
-                    new(TokenType.Equal),
-                    new(TokenType.String, value),
-                    new(TokenType.NewLine)
+                    new Token(TokenType.String, key),
+                    new Token(TokenType.Equal),
+                    new Token(TokenType.String, value),
+                    new Token(TokenType.NewLine)
                 });
             }
 
@@ -381,9 +384,9 @@ namespace kawtn.IO.Konfig
 
                 tokens.AddRange(new Token[]
                     {
-                        new(TokenType.NewLine),
-                        new(TokenType.Table, name),
-                        new(TokenType.NewLine)
+                        new Token(TokenType.NewLine),
+                        new Token(TokenType.Table, name),
+                        new Token(TokenType.NewLine)
                     });
 
                 foreach (string key in values.Keys)
@@ -392,10 +395,10 @@ namespace kawtn.IO.Konfig
 
                     tokens.AddRange(new Token[]
                     {
-                        new(TokenType.String, key),
-                        new(TokenType.Equal),
-                        new(TokenType.String, value),
-                        new(TokenType.NewLine)
+                        new Token(TokenType.String, key),
+                        new Token(TokenType.Equal),
+                        new Token(TokenType.String, value),
+                        new Token(TokenType.NewLine)
                     });
                 }
 
@@ -408,17 +411,17 @@ namespace kawtn.IO.Konfig
 
                 tokens.AddRange(new Token[]
                     {
-                        new(TokenType.NewLine),
-                        new(TokenType.List, key),
-                        new(TokenType.NewLine)
+                        new Token(TokenType.NewLine),
+                        new Token(TokenType.List, key),
+                        new Token(TokenType.NewLine)
                     });
 
                 foreach (string value in values)
                 {
                     tokens.AddRange(new Token[]
                     {
-                        new(TokenType.String, value),
-                        new(TokenType.NewLine)
+                        new Token(TokenType.String, value),
+                        new Token(TokenType.NewLine)
                     });
                 }
 

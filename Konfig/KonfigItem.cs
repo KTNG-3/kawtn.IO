@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace kawtn.IO.Konfig
 {
     public class KonfigItem<T> : StringItem
+        where T : class
     {
         public KonfigItem(string location) 
             : base(location) { }

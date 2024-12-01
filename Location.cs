@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using kawtn.IO.Json;
 
 namespace kawtn.IO
@@ -14,35 +12,50 @@ namespace kawtn.IO
 
         public Location(params string[] str)
         {
-            this.Data = Path.GetFullPath(Path.Join(str));
+            this.Data = Path.GetFullPath(Join(str));
         }
 
         public Location(Location baseLocation, params string[] str)
-            : this(baseLocation.Data, Path.Join(str)) { }
+            : this(baseLocation.Data, Join(str)) { }
 
         public Location(Item baseLocation, params string[] str)
-            : this(baseLocation.Location.Data, Path.Join(str)) { }
+            : this(baseLocation.Location.Data, Join(str)) { }
 
         public Location(Inventory baseLocation, params string[] str)
-            : this(baseLocation.Location.Data, Path.Join(str)) { }
+            : this(baseLocation.Location.Data, Join(str)) { }
+
+        public static string Join(params string[] str)
+        {
+            if (str.Length == 0) return string.Empty;
+
+            string joinStr = str[0];
+
+            for (int i = 1; i < str.Length; i++)
+            {
+                joinStr = Path.Join(joinStr, str[i]);
+            }
+
+            return joinStr;
+        }
+
+        public static string Join(params Location[] str)
+        {
+            return Join(str.Select(x => x.Data).ToArray());
+        }
 
         public bool IsExists()
         {
-            return Path.Exists(this.Data);
+            return IsItem() || IsDirectory();
         }
 
         public bool IsItem()
         {
-            if (!IsExists()) return false;
-
-            return !IsDirectory();
+            return File.Exists(this.Data);
         }
 
         public bool IsDirectory()
         {
-            if (!IsExists()) return false;
-
-            return File.GetAttributes(this.Data).HasFlag(FileAttributes.Directory);
+            return Directory.Exists(this.Data);
         }
 
         public Inventory? GetRoot()
@@ -55,28 +68,30 @@ namespace kawtn.IO
             }
             else
             {
-                return new(path);
+                return new Inventory(path);
             }
         }
 
         public Item ParseItem()
         {
-            return new(this);
+            return new Item(this);
         }
 
         public JsonItem<T> ParseJsonItem<T>()
+            where T : class
         {
-            return new(this);
+            return new JsonItem<T>(this);
         }
 
         public Inventory ParseInventory()
         {
-            return new(this);
+            return new Inventory(this);
         }
 
         public JsonInventory<T> ParseJsonInventory<T>()
+            where T : class
         {
-            return new(this);
+            return new JsonInventory<T>(this);
         }
     }
 }

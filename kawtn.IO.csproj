@@ -1,23 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Version>3.0.0-beta.2</Version>
     <Authors>kawtn</Authors>
-    <Company />
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>3.0.0-alpha</AssemblyVersion>
-    <FileVersion>$(AssemblyVersion)</FileVersion>
-    <Version>$(AssemblyVersion)</Version>
-    <Description>kawtn's files helper for C#
-and alternative to the built-in file system</Description>
-    <RepositoryUrl>https://github.com/KTNG-3/kawtn.IO</RepositoryUrl>
+    <Description>kawtn's files helper for C# built-in file system</Description>
     <PackageTags>fs,file,directory,system,alternative</PackageTags>
+    <RepositoryUrl>https://github.com/KTNG-3/kawtn.IO</RepositoryUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Update="LICENSE">
