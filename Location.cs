@@ -2,6 +2,7 @@
 using System.Linq;
 
 using kawtn.IO.Json;
+using kawtn.IO.Konfig;
 
 namespace kawtn.IO
 {
@@ -83,6 +84,12 @@ namespace kawtn.IO
             return new JsonItem<T>(this);
         }
 
+        public KonfigItem<T> ParseKonfigItem<T>()
+            where T : class
+        {
+            return new KonfigItem<T>(this);
+        }
+
         public Inventory ParseInventory()
         {
             return new Inventory(this);
@@ -92,6 +99,12 @@ namespace kawtn.IO
             where T : class
         {
             return new JsonInventory<T>(this);
+        }
+
+        public KonfigInventory<T> ParseKonfigInventory<T>()
+            where T : class
+        {
+            return new KonfigInventory<T>(this);
         }
     }
 }

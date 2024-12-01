@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
@@ -66,6 +67,11 @@ namespace kawtn.IO.Konfig
             return bool.Parse(value);
         }
 
+        static object Enumeration(Type type, string value)
+        {
+            return Enum.Parse(type, value, ignoreCase: true);
+        }
+
         static object[]? List(object obj)
         {
             Type? elementType = obj.GetType().GetElementType();
@@ -108,7 +114,7 @@ namespace kawtn.IO.Konfig
                 }
             }
 
-            if (type == typeof(bool))
+            if (type == typeof(bool) || type.IsEnum)
             {
                 return str.ToLower();
             }
@@ -155,23 +161,27 @@ namespace kawtn.IO.Konfig
 
         static T SetValue<T>(PropertyInfo property, T obj, string value)
         {
-            string type = property.PropertyType.Name;
+            Type type = property.PropertyType;
 
-            if (type == typeof(string).Name)
+            if (type == typeof(string))
             {
                 property.SetValue(obj, value);
             }
-            else if (type == typeof(int).Name)
+            else if (type == typeof(int))
             {
                 property.SetValue(obj, Int(value));
             }
-            else if (type == typeof(float).Name)
+            else if (type == typeof(float))
             {
                 property.SetValue(obj, Float(value));
             }
-            else if (type == typeof(bool).Name)
+            else if (type == typeof(bool))
             {
                 property.SetValue(obj, Bool(value));
+            }
+            else if (type.IsEnum)
+            {
+                property.SetValue(obj, Enumeration(type, value));
             }
 
             return obj;
@@ -179,7 +189,28 @@ namespace kawtn.IO.Konfig
 
         static T SetValue<T>(PropertyInfo property, T obj, IEnumerable<string> values)
         {
-            property.SetValue(obj, List(values));
+            Type type = property.PropertyType.GetElementType();
+
+            if (type == typeof(string))
+            {
+                property.SetValue(obj, values.ToArray());
+            }
+            else if (type == typeof(int))
+            {
+                property.SetValue(obj, values.Select(Int).ToArray());
+            }
+            else if (type == typeof(float))
+            {
+                property.SetValue(obj, values.Select(Float).ToArray());
+            }
+            else if (type == typeof(bool))
+            {
+                property.SetValue(obj, values.Select(Bool).ToArray());
+            }
+            else if (type.IsEnum)
+            {
+                property.SetValue(obj, values.Select(x => Enumeration(type, x)).ToArray());
+            }
 
             return obj;
         }
@@ -255,7 +286,7 @@ namespace kawtn.IO.Konfig
                 i++;
             }
 
-            T obj = Activator.CreateInstance<T>();
+            T obj = (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
             if (obj == null) return obj;
 
             Type type = obj.GetType();
@@ -281,7 +312,7 @@ namespace kawtn.IO.Konfig
                 PropertyInfo? propertyTable = GetProperty(type, vTable.Key);
                 if (propertyTable == null) continue;
 
-                object? objTable = Activator.CreateInstance(propertyTable.PropertyType);
+                object? objTable = RuntimeHelpers.GetUninitializedObject(propertyTable.PropertyType);
                 if (objTable == null) continue;
 
                 Type typeTable = objTable.GetType();
