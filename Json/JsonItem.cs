@@ -25,11 +25,6 @@ namespace kawtn.IO.Json
             Write(JsonSerializer.Serialize(data));
         }
 
-        public string ReadString()
-        {
-            return base.Read();
-        }
-
         public new T? Read()
         {
             string read = ReadString();

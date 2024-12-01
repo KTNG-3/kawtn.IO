@@ -33,5 +33,10 @@ namespace kawtn.IO
                 return string.Empty;
             }
         }
+
+        public string ReadString()
+        {
+            return Read();
+        }
     }
 }
