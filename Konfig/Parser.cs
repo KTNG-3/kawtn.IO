@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -46,7 +47,7 @@ namespace kawtn.IO.Konfig
 
     static class Parser
     {
-        static int Int(string value)
+        static int Integer(string value)
         {
             return int.Parse(value);
         }
@@ -56,7 +57,7 @@ namespace kawtn.IO.Konfig
             return float.Parse(value);
         }
 
-        static bool Bool(string value)
+        static bool Boolean(string value)
         {
             if (int.TryParse(value, out int vInt))
             {
@@ -127,17 +128,17 @@ namespace kawtn.IO.Konfig
             return null;
         }
 
-        static string GetPropertyName(PropertyInfo property)
+        static string GetMemberName(MemberInfo member)
         {
-            string name = property.Name;
+            string name = member.Name;
 
-            DataMemberAttribute? dataMemberProperty = property.GetCustomAttribute<DataMemberAttribute>();
-            if (dataMemberProperty != null && dataMemberProperty.Name != null)
+            DataMemberAttribute? dataMember = member.GetCustomAttribute<DataMemberAttribute>();
+            if (dataMember != null && !string.IsNullOrWhiteSpace(dataMember.Name))
             {
-                name = dataMemberProperty.Name;
+                name = dataMember.Name;
             }
 
-            JsonPropertyNameAttribute? jsonProperty = property.GetCustomAttribute<JsonPropertyNameAttribute>();
+            JsonPropertyNameAttribute? jsonProperty = member.GetCustomAttribute<JsonPropertyNameAttribute>();
             if (jsonProperty != null)
             {
                 name = jsonProperty.Name;
@@ -146,71 +147,126 @@ namespace kawtn.IO.Konfig
             return name;
         }
 
-        static PropertyInfo? GetProperty(Type type, string key)
+        static MemberInfo[] GetMember(Type type)
         {
+            List<MemberInfo> members = new List<MemberInfo>();
+
+            foreach (FieldInfo field in type.GetFields())
+            {
+                members.Add(field);
+            }
+
             foreach (PropertyInfo property in type.GetProperties())
             {
-                if (GetPropertyName(property) == key)
+                members.Add(property);
+            }
+
+            return members.ToArray();
+        }
+
+        static MemberInfo? GetMember(Type type, string key)
+        {
+            foreach (MemberInfo member in GetMember(type))
+            {
+                if (GetMemberName(member) == key)
                 {
-                    return property;
+                    return member;
                 }
             }
 
             return null;
         }
 
-        static T SetValue<T>(PropertyInfo property, T obj, string value)
+        static Type? GetMemberValueType(MemberInfo member)
         {
-            Type type = property.PropertyType;
+            if (member is PropertyInfo property)
+            {
+                return property.PropertyType;
+            }
 
-            if (type == typeof(string))
+            if (member is FieldInfo field)
+            {
+                return field.FieldType;
+            }
+
+            return null;
+        }
+
+        static object? GetMemberValue(MemberInfo member, object obj)
+        {
+            if (member is PropertyInfo property)
+            {
+                return property.GetValue(obj);
+            }
+
+            if (member is FieldInfo field)
+            {
+                return field.GetValue(obj);
+            }
+
+            return null;
+        }
+
+        static T SetMemberValue<T>(MemberInfo member, T obj, object value)
+        {
+            if (member is PropertyInfo property)
             {
                 property.SetValue(obj, value);
             }
-            else if (type == typeof(int))
+
+            if (member is FieldInfo field)
             {
-                property.SetValue(obj, Int(value));
-            }
-            else if (type == typeof(float))
-            {
-                property.SetValue(obj, Float(value));
-            }
-            else if (type == typeof(bool))
-            {
-                property.SetValue(obj, Bool(value));
-            }
-            else if (type.IsEnum)
-            {
-                property.SetValue(obj, Enumeration(type, value));
+                field.SetValue(obj, value);
             }
 
             return obj;
         }
 
-        static T SetValue<T>(PropertyInfo property, T obj, IEnumerable<string> values)
+        static T SetValue<T>(MemberInfo member, T obj, string value)
         {
-            Type type = property.PropertyType.GetElementType();
+            Type? type = GetMemberValueType(member);
+            if (type == null) return obj;
 
             if (type == typeof(string))
-            {
-                property.SetValue(obj, values.ToArray());
-            }
-            else if (type == typeof(int))
-            {
-                property.SetValue(obj, values.Select(Int).ToArray());
-            }
-            else if (type == typeof(float))
-            {
-                property.SetValue(obj, values.Select(Float).ToArray());
-            }
-            else if (type == typeof(bool))
-            {
-                property.SetValue(obj, values.Select(Bool).ToArray());
-            }
-            else if (type.IsEnum)
-            {
-                property.SetValue(obj, values.Select(x => Enumeration(type, x)).ToArray());
-            }
+                return SetMemberValue(member, obj, value);
+
+            if (type == typeof(int))
+                return SetMemberValue(member, obj, Integer(value));
+
+            if (type == typeof(float))
+                return SetMemberValue(member, obj, Float(value));
+
+            if (type == typeof(bool))
+                return SetMemberValue(member, obj, Boolean(value));
+
+            if (type.IsEnum)
+                return SetMemberValue(member, obj, Enumeration(type, value));
+
+            return obj;
+        }
+
+        static T SetValue<T>(MemberInfo member, T obj, IEnumerable<string> values)
+        {
+            Type? arrType = GetMemberValueType(member);
+            if (arrType == null) return obj;
+
+            Type? type = arrType.GetElementType();
+            if (type == null) return obj;
+
+            if (type == typeof(string))
+                return SetMemberValue(member, obj, values.ToArray());
+
+            if (type == typeof(int))
+                return SetMemberValue(member, obj, values.Select(Integer).ToArray());
+
+            if (type == typeof(float))
+                return SetMemberValue(member, obj, values.Select(Float).ToArray());
+
+            if (type == typeof(bool))
+                return SetMemberValue(member, obj, values.Select(Boolean).ToArray());
+
+            if (type.IsEnum)
+                return SetMemberValue(member, obj, values.Select(x => Enumeration(type, x)).ToArray());
 
             return obj;
         }
@@ -293,39 +349,39 @@ namespace kawtn.IO.Konfig
 
             foreach (ParserValue value in globalTable.Values)
             {
-                PropertyInfo? property = GetProperty(type, value.Key);
-                if (property == null) continue;
+                MemberInfo? member = GetMember(type, value.Key);
+                if (member == null) continue;
 
-                obj = SetValue(property, obj, value.Value);
+                obj = SetValue(member, obj, value.Value);
             }
 
             foreach (ParserList value in globalList)
             {
-                PropertyInfo? property = GetProperty(type, value.Key);
-                if (property == null) continue;
+                MemberInfo? member = GetMember(type, value.Key);
+                if (member == null) continue;
 
-                obj = SetValue(property, obj, value.Values);
+                obj = SetValue(member, obj, value.Values);
             }
 
             foreach (ParserTable vTable in tables)
             {
-                PropertyInfo? propertyTable = GetProperty(type, vTable.Key);
-                if (propertyTable == null) continue;
+                MemberInfo? memberTable = GetMember(type, vTable.Key);
+                if (memberTable == null) continue;
 
-                object? objTable = RuntimeHelpers.GetUninitializedObject(propertyTable.PropertyType);
+                object? objTable = RuntimeHelpers.GetUninitializedObject(GetMemberValueType(memberTable));
                 if (objTable == null) continue;
 
                 Type typeTable = objTable.GetType();
 
                 foreach (ParserValue value in vTable.Values)
                 {
-                    PropertyInfo? property = GetProperty(typeTable, value.Key);
-                    if (property == null) continue;
+                    MemberInfo? member = GetMember(typeTable, value.Key);
+                    if (member == null) continue;
 
-                    objTable = SetValue(property, objTable, value.Value);
+                    objTable = SetValue(member, objTable, value.Value);
                 }
 
-                propertyTable.SetValue(obj, objTable);
+                obj = SetMemberValue(memberTable, obj, objTable);
             }
 
             return obj;
@@ -340,11 +396,11 @@ namespace kawtn.IO.Konfig
             Dictionary<string, string[]> globalList = new Dictionary<string, string[]>();
             Dictionary<string, Dictionary<string, string>> tables = new Dictionary<string, Dictionary<string, string>>();
 
-            foreach (PropertyInfo property in obj.GetType().GetProperties())
+            foreach (MemberInfo member in GetMember(obj.GetType()))
             {
-                string key = GetPropertyName(property);
+                string key = GetMemberName(member);
 
-                object? value = property.GetValue(obj);
+                object? value = GetMemberValue(member, obj);
                 if (value == null) continue;
 
                 object[]? objList = List(value);
@@ -377,11 +433,11 @@ namespace kawtn.IO.Konfig
 
                 Dictionary<string, string> values = new Dictionary<string, string>();
 
-                foreach (PropertyInfo subProperty in value.GetType().GetProperties())
+                foreach (MemberInfo subMember in GetMember(value.GetType()))
                 {
-                    string subKey = GetPropertyName(subProperty);
+                    string subKey = GetMemberName(subMember);
 
-                    object? subValue = subProperty.GetValue(value);
+                    object? subValue = GetMemberValue(subMember, value);
                     if (subValue == null) continue;
 
                     string? subvString = Value(subValue);
