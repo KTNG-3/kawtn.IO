@@ -154,11 +154,6 @@ namespace kawtn.IO.Konfig
 
         public static IEnumerable<object>? ToObjectCollection(object value)
         {
-            if (value is Array arr)
-            {
-                return arr.Cast<object>();
-            }
-
             if (value is IEnumerable enumerable)
             {
                 return enumerable.Cast<object>();
@@ -194,6 +189,9 @@ namespace kawtn.IO.Konfig
                 return null;
 
             Type typeDefinition = collectionType.GetGenericTypeDefinition();
+
+            if (typeDefinition == typeof(HashSet<>))
+                return ToHashSet(values);
 
             if (typeDefinition == typeof(List<>))
                 return ToList(values);
