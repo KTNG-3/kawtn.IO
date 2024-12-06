@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -9,36 +8,36 @@ using System.Text.Json.Serialization;
 
 namespace kawtn.IO.Konfig
 {
-    class ParserValue
+    class Info
     {
         public string Key { get; set; }
         public string Value { get; set; }
 
-        public ParserValue(string key, string value)
+        public Info(string key, string value)
         {
             this.Key = key;
             this.Value = value;
         }
     }
 
-    class ParserTable
+    class Table
     {
         public string Key { get; set; }
-        public List<ParserValue> Values { get; set; }
+        public List<Info> Values { get; set; }
 
-        public ParserTable(string key)
+        public Table(string key)
         {
             this.Key = key;
-            this.Values = new List<ParserValue>();
+            this.Values = new List<Info>();
         }
     }
 
-    class ParserList
+    class Collection
     {
         public string Key { get; set; }
         public List<string> Values { get; set; }
 
-        public ParserList(string key)
+        public Collection(string key)
         {
             this.Key = key;
             this.Values = new List<string>();
@@ -47,60 +46,6 @@ namespace kawtn.IO.Konfig
 
     static class Parser
     {
-        static char Character(string value)
-        {
-            return char.Parse(value);
-        }
-
-        static int Integer(string value)
-        {
-            return int.Parse(value);
-        }
-
-        static float Float(string value)
-        {
-            return float.Parse(value);
-        }
-
-        static bool Bool(string value)
-        {
-            if (int.TryParse(value, out int vInt))
-            {
-                if (vInt == 0) return false;
-                if (vInt == 1) return true;
-            }
-
-            return bool.Parse(value);
-        }
-
-        static object Enumeration(Type type, string value)
-        {
-            return Enum.Parse(type, value, ignoreCase: true);
-        }
-
-        static object[]? List(object obj)
-        {
-            Type? elementType = obj.GetType().GetElementType();
-            if (elementType == null) return null;
-
-            if (elementType == typeof(string))
-                return Array.ConvertAll((string[])obj, x => (object)x);
-
-            if (elementType == typeof(char))
-                return Array.ConvertAll((char[])obj, x => (object)x);
-
-            if (elementType == typeof(int))
-                return Array.ConvertAll((int[])obj, x => (object)x);
-
-            if (elementType == typeof(float))
-                return Array.ConvertAll((float[])obj, x => (object)x);
-
-            if (elementType == typeof(bool))
-                return Array.ConvertAll((bool[])obj, x => (object)x);
-
-            return (object[])obj;
-        }
-
         static string? Value(object value)
         {
             string str = value.ToString() ?? string.Empty;
@@ -123,12 +68,38 @@ namespace kawtn.IO.Konfig
                 return str.ToLower();
             }
 
-            if (type == typeof(char) || type == typeof(int) || type == typeof(float))
+            if (type == typeof(byte) ||
+                type == typeof(char) ||
+                type == typeof(DateTime) ||
+                type == typeof(decimal) ||
+                type == typeof(double) ||
+                type == typeof(float) ||
+                type == typeof(int) ||
+                type == typeof(long) ||
+                type == typeof(short) ||
+                type == typeof(string))
             {
                 return str;
             }
 
             return null;
+        }
+
+        static MemberInfo[] GetMember(Type type)
+        {
+            List<MemberInfo> members = new List<MemberInfo>();
+
+            foreach (FieldInfo field in type.GetFields())
+            {
+                members.Add(field);
+            }
+
+            foreach (PropertyInfo property in type.GetProperties())
+            {
+                members.Add(property);
+            }
+
+            return members.ToArray();
         }
 
         static string GetMemberName(MemberInfo member)
@@ -148,23 +119,6 @@ namespace kawtn.IO.Konfig
             }
 
             return name;
-        }
-
-        static MemberInfo[] GetMember(Type type)
-        {
-            List<MemberInfo> members = new List<MemberInfo>();
-
-            foreach (FieldInfo field in type.GetFields())
-            {
-                members.Add(field);
-            }
-
-            foreach (PropertyInfo property in type.GetProperties())
-            {
-                members.Add(property);
-            }
-
-            return members.ToArray();
         }
 
 
@@ -211,8 +165,11 @@ namespace kawtn.IO.Konfig
             return null;
         }
 
-        static T SetMemberValue<T>(MemberInfo member, T obj, object value)
+        static void SetMemberValue<T>(MemberInfo member, T obj, object value)
         {
+            if (value == null || GetMemberValueType(member) != value.GetType())
+                return;
+
             if (member is PropertyInfo property)
             {
                 property.SetValue(obj, value);
@@ -222,63 +179,50 @@ namespace kawtn.IO.Konfig
             {
                 field.SetValue(obj, value);
             }
-
-            return obj;
         }
 
-        static T SetValue<T>(MemberInfo member, T obj, string value)
+        static void SetValue<T>(MemberInfo member, T obj, string value)
         {
             Type? type = GetMemberValueType(member);
-            if (type == null) return obj;
+            if (type == null) return;
 
-            if (type == typeof(string))
-                return SetMemberValue(member, obj, value);
+            object? content = TypeConversion.Convert(type, value);
+            if (content == null) return;
 
-            if (type == typeof(char))
-                return SetMemberValue(member, obj, Character(value));
-
-            if (type == typeof(int))
-                return SetMemberValue(member, obj, Integer(value));
-
-            if (type == typeof(float))
-                return SetMemberValue(member, obj, Float(value));
-
-            if (type == typeof(bool))
-                return SetMemberValue(member, obj, Bool(value));
-
-            if (type.IsEnum)
-                return SetMemberValue(member, obj, Enumeration(type, value));
-
-            return obj;
+            SetMemberValue(member, obj, content);
         }
 
-        static T SetValue<T>(MemberInfo member, T obj, IEnumerable<string> values)
+        static void SetValue<T>(MemberInfo member, T obj, IEnumerable<string> values)
         {
-            Type? arrType = GetMemberValueType(member);
-            if (arrType == null) return obj;
+            Type? type = GetMemberValueType(member);
+            if (type == null) return;
 
-            Type? type = arrType.GetElementType();
-            if (type == null) return obj;
+            object? content = TypeConversion.Convert(type, values);
+            if (content == null) return;
 
-            if (type == typeof(string))
-                return SetMemberValue(member, obj, values.ToArray());
+            SetMemberValue(member, obj, content);
+        }
 
-            if (type == typeof(char))
-                return SetMemberValue(member, obj, values.Select(Character).ToArray());
+        static T CreateInstance<T>()
+        {
+            try
+            {
+                return Activator.CreateInstance<T>();
+            }
+            catch { }
 
-            if (type == typeof(int))
-                return SetMemberValue(member, obj, values.Select(Integer).ToArray());
+            return (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
+        }
 
-            if (type == typeof(float))
-                return SetMemberValue(member, obj, values.Select(Float).ToArray());
+        static object CreateInstance(Type type)
+        {
+            try
+            {
+                return Activator.CreateInstance(type);
+            }
+            catch { }
 
-            if (type == typeof(bool))
-                return SetMemberValue(member, obj, values.Select(Bool).ToArray());
-
-            if (type.IsEnum)
-                return SetMemberValue(member, obj, values.Select(x => Enumeration(type, x)).ToArray());
-
-            return obj;
+            return RuntimeHelpers.GetUninitializedObject(type);
         }
 
         public static T Parse<T>(Token[] tokens)
@@ -287,12 +231,12 @@ namespace kawtn.IO.Konfig
 
             int i = 0;
 
-            ParserTable globalTable = new ParserTable(string.Empty);
-            List<ParserList> globalList = new List<ParserList>();
-            List<ParserTable> tables = new List<ParserTable>();
+            Table globalTable = new Table(string.Empty);
+            List<Collection> globalList = new List<Collection>();
+            List<Table> tables = new List<Table>();
 
-            ParserTable? table = null;
-            ParserList? list = null;
+            Table? table = null;
+            Collection? list = null;
 
             while (true)
             {
@@ -319,12 +263,12 @@ namespace kawtn.IO.Konfig
 
                 if (token.Type == TokenType.Table)
                 {
-                    table = new ParserTable(token.Value);
+                    table = new Table(token.Value);
                 }
 
                 if (token.Type == TokenType.List)
                 {
-                    list = new ParserList(token.Value);
+                    list = new Collection(token.Value);
                 }
 
                 if (token.Type == TokenType.String && list != null)
@@ -334,7 +278,7 @@ namespace kawtn.IO.Konfig
 
                 if (token.Type == TokenType.Equal)
                 {
-                    ParserValue data = new ParserValue(
+                    Info data = new Info(
                         key: tokens[i - 1].Value,
                         value: tokens[i + 1].Value
                         );
@@ -352,46 +296,49 @@ namespace kawtn.IO.Konfig
                 i++;
             }
 
-            T obj = (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
+            T obj = CreateInstance<T>();
             if (obj == null) return obj;
 
             Type type = obj.GetType();
 
-            foreach (ParserValue value in globalTable.Values)
+            foreach (Info value in globalTable.Values)
             {
                 MemberInfo? member = GetMember(type, value.Key);
                 if (member == null) continue;
 
-                obj = SetValue(member, obj, value.Value);
+                SetValue(member, obj, value.Value);
             }
 
-            foreach (ParserList value in globalList)
+            foreach (Collection value in globalList)
             {
                 MemberInfo? member = GetMember(type, value.Key);
                 if (member == null) continue;
 
-                obj = SetValue(member, obj, value.Values);
+                SetValue(member, obj, value.Values);
             }
 
-            foreach (ParserTable vTable in tables)
+            foreach (Table vTable in tables)
             {
                 MemberInfo? memberTable = GetMember(type, vTable.Key);
                 if (memberTable == null) continue;
 
-                object? objTable = RuntimeHelpers.GetUninitializedObject(GetMemberValueType(memberTable));
+                Type? memberValueType = GetMemberValueType(memberTable);
+                if (memberValueType == null) continue;
+
+                object? objTable = CreateInstance(memberValueType);
                 if (objTable == null) continue;
 
                 Type typeTable = objTable.GetType();
 
-                foreach (ParserValue value in vTable.Values)
+                foreach (Info value in vTable.Values)
                 {
                     MemberInfo? member = GetMember(typeTable, value.Key);
                     if (member == null) continue;
 
-                    objTable = SetValue(member, objTable, value.Value);
+                    SetValue(member, objTable, value.Value);
                 }
 
-                obj = SetMemberValue(memberTable, obj, objTable);
+                SetMemberValue(memberTable, obj, objTable);
             }
 
             return obj;
@@ -413,7 +360,7 @@ namespace kawtn.IO.Konfig
                 object? value = GetMemberValue(member, obj);
                 if (value == null) continue;
 
-                object[]? objList = List(value);
+                IEnumerable<object>? objList = TypeConversion.ToObjectCollection(value);
 
                 if (objList != null)
                 {
