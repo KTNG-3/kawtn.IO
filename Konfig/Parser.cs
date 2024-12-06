@@ -91,11 +91,15 @@ namespace kawtn.IO.Konfig
 
             foreach (FieldInfo field in type.GetFields())
             {
+                if (field.IsStatic) continue;
+
                 members.Add(field);
             }
 
-            foreach (PropertyInfo property in type.GetProperties())
+            foreach (PropertyInfo property in type.GetProperties(~BindingFlags.Static))
             {
+                if (property.GetIndexParameters().Length != 0) continue; // indexer
+
                 members.Add(property);
             }
 
@@ -154,6 +158,9 @@ namespace kawtn.IO.Konfig
         {
             if (member is PropertyInfo property)
             {
+                if (!property.CanRead)
+                    return null;
+
                 return property.GetValue(obj);
             }
 
@@ -172,6 +179,9 @@ namespace kawtn.IO.Konfig
 
             if (member is PropertyInfo property)
             {
+                if (!property.CanWrite)
+                    return;
+
                 property.SetValue(obj, value);
             }
 

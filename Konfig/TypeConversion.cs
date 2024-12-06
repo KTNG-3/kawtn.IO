@@ -154,7 +154,7 @@ namespace kawtn.IO.Konfig
 
         public static IEnumerable<object>? ToObjectCollection(object value)
         {
-            if (value is IEnumerable enumerable)
+            if (value is ICollection enumerable)
             {
                 return enumerable.Cast<object>();
             }
