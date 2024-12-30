@@ -12,8 +12,14 @@ namespace kawtn.IO
     // Directory
     public class Inventory
     {
-        public readonly Location Location;
-        protected readonly Attributes Attributes;
+        public Location Location { get; private set; }
+        protected Attributes Attributes
+        {
+            get
+            {
+                return new Attributes(this.Location);
+            }
+        }
 
         public Inventory(string location)
         {
@@ -24,7 +30,6 @@ namespace kawtn.IO
             }
 
             this.Location = new Location(location);
-            this.Attributes = new Attributes(this.Location);
         }
 
         public Inventory(Location location) 
@@ -186,6 +191,8 @@ namespace kawtn.IO
         {
             Clone(destination);
             Delete();
+
+            this.Location = destination.Location;
         }
 
         public Inventory InsertTo(Inventory destination)
@@ -197,13 +204,24 @@ namespace kawtn.IO
             return inventory;
         }
 
-        public Inventory TransferTo(Inventory destination)
+        public void TransferTo(Inventory destination)
         {
             Inventory inventory = InsertTo(destination);
 
             Delete();
 
-            return inventory;
+            this.Location = inventory.Location;
+        }
+
+        public void ChangeName(string name)
+        {
+            if (GetName() == name) return;
+
+            Inventory? parent = GetParent();
+            if (parent == null) return;
+
+            Inventory inventory = parent.CreateInventory(name);
+            Move(inventory);
         }
 
         public void Delete()

@@ -19,16 +19,9 @@ namespace kawtn.IO.Json
             return item.IsExists();
         }
 
-        public new JsonItem<T> CreateItem(string name)
-        {
-            Location location = new Location(this, name);
-
-            return new JsonItem<T>(location);
-        }
-
         public void Write(string name, T data)
         {
-            JsonItem<T> item = CreateItem(name);
+            JsonItem<T> item = CreateJsonItem<T>(name);
 
             item.Write(data);
         }
@@ -53,14 +46,14 @@ namespace kawtn.IO.Json
 
         public T? Read(string name)
         {
-            JsonItem<T> item = CreateItem(name);
+            JsonItem<T> item = CreateJsonItem<T>(name);
 
             return item.Read();
         }
 
         public void Edit(string name, Func<T, T> editor)
         {
-            JsonItem<T> item = CreateItem(name);
+            JsonItem<T> item = CreateJsonItem<T>(name);
 
             item.Edit(editor);
         }

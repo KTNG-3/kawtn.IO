@@ -9,8 +9,14 @@ namespace kawtn.IO
     // File
     public class Item
     {
-        public readonly Location Location;
-        protected readonly Attributes Attributes;
+        public Location Location { get; private set; }
+        protected Attributes Attributes
+        {
+            get
+            {
+                return new Attributes(this.Location);
+            }
+        }
 
         public Item(string location)
         {
@@ -21,7 +27,6 @@ namespace kawtn.IO
             }
 
             this.Location = new Location(location);
-            this.Attributes = new Attributes(this.Location);
         }
 
         public Item(Location location)
@@ -40,9 +45,43 @@ namespace kawtn.IO
             return new FileInfo(this.Location.Data);
         }
 
-        public string GetName()
+        public string GetSystemName()
         {
             return GetInfo().Name;
+        }
+
+        public string GetName()
+        {
+            string sysName = GetSystemName();
+
+            int dotIndex = sysName.IndexOf('.');
+
+            int notFound = -1;
+            if (dotIndex == notFound)
+            {
+                return sysName;
+            }
+            else
+            {
+                return sysName.Substring(0, dotIndex);
+            }
+        }
+
+        public string GetExtention()
+        {
+            string sysName = GetSystemName();
+
+            int dotIndex = sysName.IndexOf('.');
+
+            int notFound = -1;
+            if (dotIndex == notFound)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return sysName.Substring(dotIndex);
+            }
         }
 
         public Inventory? GetParent()
@@ -114,6 +153,8 @@ namespace kawtn.IO
         {
             Clone(destination);
             Delete();
+
+            this.Location = destination.Location;
         }
 
         public Item InsertTo(Inventory destination)
@@ -125,13 +166,51 @@ namespace kawtn.IO
             return item;
         }
 
-        public Item TransferTo(Inventory destination)
+        public void TransferTo(Inventory destination)
         {
             Item item = InsertTo(destination);
 
             Delete();
 
-            return item;
+            this.Location = item.Location;
+        }
+
+        public void ChangeSystemName(string name)
+        {
+            if (GetName() == name) return;
+
+            Inventory? parent = GetParent();
+            if (parent == null) return;
+
+            Item item = parent.CreateItem(name);
+            Move(item);
+        }
+
+        public void ChangeName(string name)
+        {
+            if (name.Contains('.'))
+            {
+                throw new ArgumentException("extension should not be included in the name");
+            }
+
+            ChangeSystemName($"{name}{GetExtention()}");
+        }
+
+        public void ChangeExtention(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                ChangeSystemName(GetName());
+                return;
+            }
+
+            if (name.StartsWith('.'))
+            {
+                ChangeSystemName($"{GetName()}{name}");
+                return;
+            }
+
+            ChangeSystemName($"{GetName()}.{name}");
         }
 
         public void Delete()

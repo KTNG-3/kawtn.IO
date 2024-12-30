@@ -9,7 +9,7 @@ namespace kawtn.IO
     // Path
     public class Location
     {
-        public string Data { get; private set; }
+        public readonly string Data;
 
         public Location(params string[] str)
         {

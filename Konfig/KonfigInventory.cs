@@ -19,16 +19,9 @@ namespace kawtn.IO.Konfig
             return item.IsExists();
         }
 
-        public new KonfigItem<T> CreateItem(string name)
-        {
-            Location location = new Location(this, name);
-
-            return new KonfigItem<T>(location);
-        }
-
         public void Write(string name, T data)
         {
-            KonfigItem<T> item = CreateItem(name);
+            KonfigItem<T> item = CreateKonfigItem<T>(name);
 
             item.Write(data);
         }
@@ -53,14 +46,14 @@ namespace kawtn.IO.Konfig
 
         public T? Read(string name)
         {
-            KonfigItem<T> item = CreateItem(name);
+            KonfigItem<T> item = CreateKonfigItem<T>(name);
 
             return item.Read();
         }
 
         public void Edit(string name, Func<T, T> editor)
         {
-            KonfigItem<T> item = CreateItem(name);
+            KonfigItem<T> item = CreateKonfigItem<T>(name);
 
             item.Edit(editor);
         }
