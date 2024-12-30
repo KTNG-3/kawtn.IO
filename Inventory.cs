@@ -4,6 +4,8 @@ using System.IO.Compression;
 using System.Linq;
 
 using kawtn.IO.External;
+using kawtn.IO.Json;
+using kawtn.IO.Konfig;
 
 namespace kawtn.IO
 {
@@ -80,16 +82,36 @@ namespace kawtn.IO
 
         public Item CreateItem(string name)
         {
-            Location location = new Location(this, name);
+            return new Location(this, name).ParseItem();
+        }
 
-            return new Item(location);
+        public JsonItem<T> CreateJsonItem<T>(string name)
+            where T : class
+        {
+            return new Location(this, name).ParseJsonItem<T>();
+        }
+
+        public KonfigItem<T> CreateKonfigItem<T>(string name)
+            where T : class
+        {
+            return new Location(this, name).ParseKonfigItem<T>();
         }
 
         public Inventory CreateInventory(string name)
         {
-            Location location = new Location(this, name);
+            return new Location(this, name).ParseInventory();
+        }
 
-            return new Inventory(location);
+        public JsonInventory<T> CreateJsonInventory<T>(string name)
+            where T : class
+        {
+            return new Location(this, name).ParseJsonInventory<T>();
+        }
+        
+        public KonfigInventory<T> CreateKonfigInventory<T>(string name)
+            where T : class
+        {
+            return new Location(this, name).ParseKonfigInventory<T>();
         }
 
         public Item Insert(Item item)

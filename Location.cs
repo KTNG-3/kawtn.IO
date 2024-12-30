@@ -46,7 +46,7 @@ namespace kawtn.IO
 
         public bool IsExists()
         {
-            return IsItem() || IsDirectory();
+            return IsItem() || IsInventory();
         }
 
         public bool IsItem()
@@ -54,7 +54,7 @@ namespace kawtn.IO
             return File.Exists(this.Data);
         }
 
-        public bool IsDirectory()
+        public bool IsInventory()
         {
             return Directory.Exists(this.Data);
         }
