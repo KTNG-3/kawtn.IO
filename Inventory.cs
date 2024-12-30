@@ -217,6 +217,11 @@ namespace kawtn.IO
         {
             if (GetName() == name) return;
 
+            if (name.Contains('.'))
+            {
+                throw new ArgumentException("extension should not be included in the name");
+            }
+
             Inventory? parent = GetParent();
             if (parent == null) return;
 

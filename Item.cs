@@ -177,7 +177,7 @@ namespace kawtn.IO
 
         public void ChangeSystemName(string name)
         {
-            if (GetName() == name) return;
+            if (GetSystemName() == name) return;
 
             Inventory? parent = GetParent();
             if (parent == null) return;
