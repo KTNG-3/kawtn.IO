@@ -67,7 +67,7 @@ namespace kawtn.IO
             }
         }
 
-        public string GetExtention()
+        public string GetExtension()
         {
             string sysName = GetSystemName();
 
@@ -188,16 +188,20 @@ namespace kawtn.IO
 
         public void ChangeName(string name)
         {
+            if (GetName() == name) return;
+
             if (name.Contains('.'))
             {
                 throw new ArgumentException("extension should not be included in the name");
             }
 
-            ChangeSystemName($"{name}{GetExtention()}");
+            ChangeSystemName($"{name}{GetExtension()}");
         }
 
-        public void ChangeExtention(string name)
+        public void ChangeExtension(string name)
         {
+            if (GetExtension() == name) return;
+
             if (string.IsNullOrWhiteSpace(name))
             {
                 ChangeSystemName(GetName());

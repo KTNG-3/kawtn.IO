@@ -21,6 +21,8 @@ namespace kawtn.IO
             }
         }
 
+        public string DefaultItemExtension = string.Empty;
+
         public Inventory(string location)
         {
             if (!location.EndsWith(Path.DirectorySeparatorChar)
@@ -87,43 +89,59 @@ namespace kawtn.IO
 
         public Item CreateItem(string name)
         {
-            return new Location(this, name).ParseItem();
+            return new Location(this, $"{name}{DefaultItemExtension}").ParseItem();
         }
 
         public JsonItem<T> CreateJsonItem<T>(string name)
             where T : class
         {
-            return new Location(this, name).ParseJsonItem<T>();
+            return new Location(this, $"{name}{DefaultItemExtension}").ParseJsonItem<T>();
         }
 
         public KonfigItem<T> CreateKonfigItem<T>(string name)
             where T : class
         {
-            return new Location(this, name).ParseKonfigItem<T>();
+            return new Location(this, $"{name}{DefaultItemExtension}").ParseKonfigItem<T>();
         }
 
         public Inventory CreateInventory(string name)
         {
-            return new Location(this, name).ParseInventory();
+            Inventory inventory = new Location(this, name).ParseInventory();
+
+            inventory.DefaultItemExtension = this.DefaultItemExtension;
+
+            return inventory;
         }
 
         public JsonInventory<T> CreateJsonInventory<T>(string name)
             where T : class
         {
-            return new Location(this, name).ParseJsonInventory<T>();
+            JsonInventory<T> inventory = new Location(this, name).ParseJsonInventory<T>();
+
+            inventory.DefaultItemExtension = this.DefaultItemExtension;
+
+            return inventory;
         }
         
         public KonfigInventory<T> CreateKonfigInventory<T>(string name)
             where T : class
         {
-            return new Location(this, name).ParseKonfigInventory<T>();
+            KonfigInventory<T> inventory = new Location(this, name).ParseKonfigInventory<T>();
+
+            inventory.DefaultItemExtension = this.DefaultItemExtension;
+
+            return inventory;
         }
 
-        public Item Insert(Item item)
+        public Item Insert(Item item, bool changeExtension = false)
         {
             Create();
 
-            return item.InsertTo(this);
+            Item insertedItem = item.InsertTo(this);
+
+            if (changeExtension) insertedItem.ChangeExtension(DefaultItemExtension);
+
+            return insertedItem;
         }
 
         public Inventory Insert(Inventory inventory)
