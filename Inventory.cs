@@ -92,14 +92,12 @@ namespace kawtn.IO
             return new Location(this, $"{name}{DefaultItemExtension}").ParseItem();
         }
 
-        public JsonItem<T> CreateJsonItem<T>(string name)
-            where T : class
+        public JsonItem<T> CreateJsonItem<T>(string name) 
         {
             return new Location(this, $"{name}{DefaultItemExtension}").ParseJsonItem<T>();
         }
 
         public KonfigItem<T> CreateKonfigItem<T>(string name)
-            where T : class
         {
             return new Location(this, $"{name}{DefaultItemExtension}").ParseKonfigItem<T>();
         }
@@ -114,7 +112,6 @@ namespace kawtn.IO
         }
 
         public JsonInventory<T> CreateJsonInventory<T>(string name)
-            where T : class
         {
             JsonInventory<T> inventory = new Location(this, name).ParseJsonInventory<T>();
 
@@ -124,7 +121,6 @@ namespace kawtn.IO
         }
         
         public KonfigInventory<T> CreateKonfigInventory<T>(string name)
-            where T : class
         {
             KonfigInventory<T> inventory = new Location(this, name).ParseKonfigInventory<T>();
 

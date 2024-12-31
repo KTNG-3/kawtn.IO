@@ -1,31 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <Nullable>enable</Nullable>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>3.0.0-beta.9</Version>
-    <Authors>kawtn</Authors>
-    <Description>kawtn's files helper for C# built-in file system</Description>
-    <PackageTags>fs,file,directory,system,alternative</PackageTags>
-    <RepositoryUrl>https://github.com/KTNG-3/kawtn.IO</RepositoryUrl>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <LangVersion>9.0</LangVersion>
+        <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <Version>3.0.0-beta.10</Version>
+        <Authors>kawtn</Authors>
+        <Description>kawtn's files helper for C# built-in file system</Description>
+        <PackageTags>fs,file,directory,system,alternative</PackageTags>
+        <RepositoryUrl>https://github.com/KTNG-3/kawtn.IO</RepositoryUrl>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="9.0.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Update="LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Update="README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <None Update="LICENSE">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Update="README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
 
 </Project>

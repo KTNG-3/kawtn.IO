@@ -1,42 +1,25 @@
 ﻿using System;
+using System.Text.Json;
+using kawtn.IO.Serializable;
 
 namespace kawtn.IO.Konfig
 {
-    public class KonfigItem<T> : StringItem
-        where T : class
+    public class KonfigItem<T> : SerializableItem<T>
     {
-        public KonfigItem(string location) 
-            : base(location) { }
+        public KonfigItem
+            (
+                string location
+            )
+
+            : base
+            (
+                location,
+                serializer: (T data) => KonfigSerializer.Serialize<T>(data),
+                deserializer: (string content) => KonfigSerializer.Deserialize<T>(content)
+            )
+        { }
 
         public KonfigItem(Location location)
-            : base(location) { }
-
-        public void Write(T data)
-        {
-            Write(KonfigSerializer.Serialize(data));
-        }
-
-        public new T? Read()
-        {
-            string read = this.ReadString();
-
-            try
-            {
-                return KonfigSerializer.Deserialize<T>(read);
-            }
-            catch { }
-
-            return default;
-        }
-
-        public void Edit(Func<T, T> editor)
-        {
-            T? read = Read();
-            if (read == null) return;
-
-            T data = editor.Invoke(read);
-
-            Write(data);
-        }
+            : this(location.Data) { }
     }
 }

@@ -1,60 +1,27 @@
 ﻿using System;
 using System.Text.Json;
+using kawtn.IO.Serializable;
 
 namespace kawtn.IO.Json
 {
-    public class JsonItem<T> : StringItem 
-        where T : class
+    public class JsonItem<T> : SerializableItem<T>
     {
-        readonly T? defaultValue = default;
+        public JsonItem
+            (
+                string location,
+                T? defaultValue = default
+            )
 
-        public JsonItem(string location) 
-            : base(location) { }
+            : base
+            (
+                location,
+                serializer: (T data) => JsonSerializer.Serialize<T>(data),
+                deserializer: (string content) => JsonSerializer.Deserialize<T>(content),
+                defaultValue
+            )
+        { }
 
-        public JsonItem(Location location)
-            : base(location.Data) { }
-
-        public JsonItem(string location, T defaultValue) : base(location)
-        {
-            this.defaultValue = defaultValue;
-        }
-
-        public JsonItem(Location location, T defaultValue)
+        public JsonItem(Location location, T? defaultValue = default)
             : this(location.Data, defaultValue) { }
-
-        public void Write(T data)
-        {
-            Write(JsonSerializer.Serialize(data));
-        }
-
-        public new T? Read()
-        {
-            string read = ReadString();
-
-            if (string.IsNullOrWhiteSpace(read) && defaultValue != null)
-            {
-                Write(defaultValue);
-
-                return Read();
-            }
-
-            try
-            {
-                return JsonSerializer.Deserialize<T>(read);
-            }
-            catch { }
-
-            return default;
-        }
-
-        public void Edit(Func<T, T> editor)
-        {
-            T? read = Read();
-            if (read == null) return;
-
-            T data = editor.Invoke(read);
-
-            Write(data);
-        }
     }
 }

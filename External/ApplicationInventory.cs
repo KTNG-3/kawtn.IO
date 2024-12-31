@@ -18,7 +18,7 @@ namespace kawtn.IO.External
             IsMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
             IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
-            string tempPath = Path.Join(Path.GetTempPath(), $"kawtn.IO-{Path.GetRandomFileName()}");
+            string tempPath = Location.Join(Path.GetTempPath(), $"kawtn.IO-{Path.GetRandomFileName()}");
             Temporary = new Inventory(tempPath);
         }
 
@@ -27,10 +27,10 @@ namespace kawtn.IO.External
             string joinPath = Location.Join(path);
 
             if (IsWindows)
-                joinPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), joinPath);
+                joinPath = Location.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), joinPath);
 
             if (IsMacOS)
-                joinPath = Path.Join("Library", "Application Support", joinPath);
+                joinPath = Location.Join("Library", "Application Support", joinPath);
 
             return new Inventory(joinPath);
         }

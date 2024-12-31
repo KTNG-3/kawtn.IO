@@ -1,24 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace kawtn.IO.Json
 {
-    public class KeyValueItem : JsonItem<Dictionary<string, string>>
+    public class KeyValueItem<TKey, TValue> : JsonItem<Dictionary<TKey, TValue>>
     {
         public KeyValueItem(string location)
-            : base(location, defaultValue: new Dictionary<string, string>()) { }
+            : base(location, defaultValue: new Dictionary<TKey, TValue>()) { }
 
         public KeyValueItem(Location location)
             : this(location.Data) { }
 
-        public bool IsExists(string key)
+        public bool IsExists(TKey key)
         {
-            Dictionary<string, string>? data = base.Read();
+            Dictionary<TKey, TValue>? data = base.Read();
             if (data == null) return false;
 
             return data.ContainsKey(key);
         }
 
-        public void Write(string key, string value)
+        public void Write(TKey key, TValue value)
         {
             Edit(x =>
             {
@@ -28,16 +29,25 @@ namespace kawtn.IO.Json
             });
         }
 
-        public string? Read(string key)
+        public TValue? Read(TKey key)
         {
-            Dictionary<string, string>? data = base.Read();
-            if (data == null) return null;
-            if (!data.TryGetValue(key, out string? value)) return null;
+            Dictionary<TKey, TValue>? data = base.Read();
+            if (data == null) return default;
+            if (!data.TryGetValue(key, out TValue? value)) return default;
 
             return value;
         }
 
-        public void Delete(string key)
+        public void Edit(TKey key, Func<TValue, TValue> editor)
+        {
+            TValue? read = Read(key);
+            if (read == null) return;
+
+            TValue value = editor.Invoke(read);
+            Write(key, value);
+        }
+
+        public void Delete(TKey key)
         {
             Edit(x =>
             {

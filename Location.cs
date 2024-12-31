@@ -79,13 +79,11 @@ namespace kawtn.IO
         }
 
         public JsonItem<T> ParseJsonItem<T>()
-            where T : class
         {
             return new JsonItem<T>(this);
         }
 
         public KonfigItem<T> ParseKonfigItem<T>()
-            where T : class
         {
             return new KonfigItem<T>(this);
         }
@@ -96,13 +94,11 @@ namespace kawtn.IO
         }
 
         public JsonInventory<T> ParseJsonInventory<T>()
-            where T : class
         {
             return new JsonInventory<T>(this);
         }
 
         public KonfigInventory<T> ParseKonfigInventory<T>()
-            where T : class
         {
             return new KonfigInventory<T>(this);
         }
