@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -21,7 +23,7 @@ namespace kawtn.IO
             }
         }
 
-        public string DefaultItemExtension = string.Empty;
+        public string ItemExtension = string.Empty;
 
         public Inventory(string location)
         {
@@ -47,7 +49,7 @@ namespace kawtn.IO
 
         public bool IsEmpty()
         {
-            return Read().Length == 0;
+            return Read().Count() == 0;
         }
 
         public void Hidden(bool hidden = true)
@@ -89,24 +91,24 @@ namespace kawtn.IO
 
         public Item CreateItem(string name)
         {
-            return new Location(this, $"{name}{DefaultItemExtension}").ParseItem();
+            return new Location(this, $"{name}{ItemExtension}").ParseItem();
         }
 
         public JsonItem<T> CreateJsonItem<T>(string name) 
         {
-            return new Location(this, $"{name}{DefaultItemExtension}").ParseJsonItem<T>();
+            return new Location(this, $"{name}{ItemExtension}").ParseJsonItem<T>();
         }
 
         public KonfigItem<T> CreateKonfigItem<T>(string name)
         {
-            return new Location(this, $"{name}{DefaultItemExtension}").ParseKonfigItem<T>();
+            return new Location(this, $"{name}{ItemExtension}").ParseKonfigItem<T>();
         }
 
         public Inventory CreateInventory(string name)
         {
             Inventory inventory = new Location(this, name).ParseInventory();
 
-            inventory.DefaultItemExtension = this.DefaultItemExtension;
+            inventory.ItemExtension = this.ItemExtension;
 
             return inventory;
         }
@@ -115,7 +117,7 @@ namespace kawtn.IO
         {
             JsonInventory<T> inventory = new Location(this, name).ParseJsonInventory<T>();
 
-            inventory.DefaultItemExtension = this.DefaultItemExtension;
+            inventory.ItemExtension = this.ItemExtension;
 
             return inventory;
         }
@@ -124,18 +126,19 @@ namespace kawtn.IO
         {
             KonfigInventory<T> inventory = new Location(this, name).ParseKonfigInventory<T>();
 
-            inventory.DefaultItemExtension = this.DefaultItemExtension;
+            inventory.ItemExtension = this.ItemExtension;
 
             return inventory;
         }
 
-        public Item Insert(Item item, bool changeExtension = false)
+        public Item Insert(Item item, bool changeItemExtension = true)
         {
             Create();
 
             Item insertedItem = item.InsertTo(this);
 
-            if (changeExtension) insertedItem.ChangeExtension(DefaultItemExtension);
+            if (changeItemExtension) 
+                insertedItem.ChangeExtension(ItemExtension);
 
             return insertedItem;
         }
@@ -147,28 +150,52 @@ namespace kawtn.IO
             return inventory.InsertTo(this);
         }
 
-        public Location[] Read()
+        public IEnumerable<Location> Read(bool filterItemExtension = true)
         {
             if (!IsExists())
                 return Array.Empty<Location>();
 
-            return Directory.GetFileSystemEntries(this.Location.Data)
-                .Select(x => new Location(x))
-                .ToArray();
+            IEnumerable<Location> read = Directory.GetFileSystemEntries(this.Location.Data).Select(x => new Location(x));
+
+            if (filterItemExtension)
+            {
+                return read.Where(location =>
+                {
+                    if (location.IsInventory())
+                        return true;
+
+                    return location.ParseItem().GetExtension() == ItemExtension;
+                });
+            }
+            else
+            {
+                return read;
+            }
         }
 
-        public Item[] ReadItems()
+        public IEnumerable<Item> ReadItems(bool filterItemExtension = true)
         {
-            return Directory.GetFiles(this.Location.Data)
-                .Select(x => new Item(x))
-                .ToArray();
+            if (!IsExists())
+                return Array.Empty<Item>();
+
+            IEnumerable<Item> read = Directory.GetFiles(this.Location.Data).Select(x => new Item(x));
+
+            if (filterItemExtension)
+            {
+                return read.Where(item => item.GetExtension() == ItemExtension);
+            }
+            else
+            {
+                return read;
+            }
         }
 
-        public Inventory[] ReadInventories()
+        public IEnumerable<Inventory> ReadInventories()
         {
-            return Directory.GetDirectories(this.Location.Data)
-                .Select(x => new Inventory(x))
-                .ToArray();
+            if (!IsExists())
+                return Array.Empty<Inventory>();
+
+            return Directory.GetDirectories(this.Location.Data).Select(x => new Inventory(x));
         }
 
         public void Zip(Item destination)

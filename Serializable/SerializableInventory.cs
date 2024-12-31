@@ -89,9 +89,21 @@ namespace kawtn.IO.Serializable
 
         public SerializableItem<TValue> CreateSerializableItem(TKey name)
         {
-            Location location = new Location(this, $"{name.ToString()}{DefaultItemExtension}");
+            Location location = new Location(this, $"{name.ToString()}{ItemExtension}");
 
             return new SerializableItem<TValue>(location, this.Serialize, this.Deserialize, this.DefaultValue);
+        }
+
+        public SerializableInventory<TKey, TValue> CreateSerializableInventory(TKey name)
+        {
+            Location location = new Location(this, name.ToString());
+
+            SerializableInventory<TKey, TValue> inventory =
+                new SerializableInventory<TKey, TValue>(location, this.Serialize, this.Deserialize, this.DefaultValue);
+
+            inventory.ItemExtension = this.ItemExtension;
+
+            return inventory;
         }
 
         public bool IsExists(TKey name)
@@ -108,7 +120,7 @@ namespace kawtn.IO.Serializable
             item.Write(data);
         }
 
-        public new TValue[] Read()
+        public IEnumerable<TValue> Read()
         {
             List<TValue> list = new List<TValue>();
 
@@ -124,7 +136,7 @@ namespace kawtn.IO.Serializable
                 }
             }
 
-            return list.ToArray();
+            return list;
         }
 
         public TValue? Read(TKey name)

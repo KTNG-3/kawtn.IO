@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-
+using System.Linq;
 using kawtn.IO.External;
 
 namespace kawtn.IO
@@ -114,14 +116,19 @@ namespace kawtn.IO
             }
         }
 
-        public void Write(byte[] data)
+        public void Write(IEnumerable<byte> data)
         {
             Create();
 
-            File.WriteAllBytes(this.Location.Data, data);
+            File.WriteAllBytes(this.Location.Data, data.ToArray());
         }
 
-        public byte[] Read()
+        public void WriteByte(IEnumerable<byte> data)
+        {
+            this.Write(data);
+        }
+
+        public IEnumerable<byte> Read()
         {
             if (IsExists())
             {
@@ -131,6 +138,11 @@ namespace kawtn.IO
             {
                 return Array.Empty<byte>();
             }
+        }
+
+        public IEnumerable<byte> ReadByte()
+        {
+            return this.Read();
         }
 
         public void Unzip(Inventory destination)

@@ -17,6 +17,11 @@ namespace kawtn.IO
             File.WriteAllText(Location.Data, data);
         }
 
+        public void WriteString(string data)
+        {
+            this.Write(data);
+        }
+
         public new string Read()
         {
             if (File.Exists(Location.Data))
@@ -32,7 +37,7 @@ namespace kawtn.IO
 
         public string ReadString()
         {
-            return Read();
+            return this.Read();
         }
     }
 }
