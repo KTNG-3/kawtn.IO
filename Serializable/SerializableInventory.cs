@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Xml.Linq;
-using kawtn.IO.Json;
 
 namespace kawtn.IO.Serializable
 {
@@ -126,7 +123,7 @@ namespace kawtn.IO.Serializable
 
             foreach (Item baseItem in ReadItems())
             {
-                SerializableItem<TValue> item 
+                SerializableItem<TValue> item
                     = new SerializableItem<TValue>(baseItem.Location, this.Serialize, this.Deserialize, this.DefaultValue);
 
                 TValue? data = item.Read();

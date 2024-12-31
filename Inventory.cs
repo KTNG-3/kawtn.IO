@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -36,7 +35,7 @@ namespace kawtn.IO
             this.Location = new Location(location);
         }
 
-        public Inventory(Location location) 
+        public Inventory(Location location)
             : this(location.Data) { }
 
         public Inventory()
@@ -94,7 +93,7 @@ namespace kawtn.IO
             return new Location(this, $"{name}{ItemExtension}").ParseItem();
         }
 
-        public JsonItem<T> CreateJsonItem<T>(string name) 
+        public JsonItem<T> CreateJsonItem<T>(string name)
         {
             return new Location(this, $"{name}{ItemExtension}").ParseJsonItem<T>();
         }
@@ -121,7 +120,7 @@ namespace kawtn.IO
 
             return inventory;
         }
-        
+
         public KonfigInventory<T> CreateKonfigInventory<T>(string name)
         {
             KonfigInventory<T> inventory = new Location(this, name).ParseKonfigInventory<T>();
@@ -137,7 +136,7 @@ namespace kawtn.IO
 
             Item insertedItem = item.InsertTo(this);
 
-            if (changeItemExtension) 
+            if (changeItemExtension)
                 insertedItem.ChangeExtension(ItemExtension);
 
             return insertedItem;

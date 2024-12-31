@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace kawtn.IO.Serializable
 {
@@ -44,7 +42,7 @@ namespace kawtn.IO.Serializable
                 serializer,
                 deserializer,
                 defaultValue
-            ) 
+            )
         { }
 
         public void Write(T data)
@@ -54,7 +52,7 @@ namespace kawtn.IO.Serializable
 
         public new T? Read()
         {
-            if (!IsExists()) 
+            if (!IsExists())
                 return default;
 
             string read = ReadString();
