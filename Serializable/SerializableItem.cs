@@ -4,50 +4,23 @@ namespace kawtn.IO.Serializable
 {
     public class SerializableItem<T> : StringItem
     {
-        protected readonly Func<T, string> Serialize;
-        protected readonly Func<string, T?> Deserialize;
+        protected readonly Serializer<T> Serializer;
 
-        protected readonly T? DefaultValue;
-
-        public SerializableItem
-            (
-                string location,
-                Func<T, string> serializer,
-                Func<string, T?> deserializer,
-                T? defaultValue = default
-            )
-
-            : base
-            (
-                location
-            )
+        public SerializableItem(string location, Serializer<T> serializer)
+            : base(location)
         {
-            this.Serialize = serializer;
-            this.Deserialize = deserializer;
-
-            this.DefaultValue = defaultValue;
+            this.Serializer = serializer;
         }
 
-        public SerializableItem
-            (
-                Location location,
-                Func<T, string> serializer,
-                Func<string, T?> deserializer,
-                T? defaultValue = default
-            )
-
-            : this
-            (
-                location.Data,
-                serializer,
-                deserializer,
-                defaultValue
-            )
-        { }
+        public SerializableItem(Location location, Serializer<T> serializer)
+            : this(location.Data, serializer) { }
 
         public void Write(T data)
         {
-            Write(Serialize.Invoke(data));
+            if (!Serializer.Validate(data))
+                return;
+
+            Write(Serializer.Serialize(data));
         }
 
         public new T? Read()
@@ -57,14 +30,14 @@ namespace kawtn.IO.Serializable
 
             string read = ReadString();
 
-            if (string.IsNullOrWhiteSpace(read) && DefaultValue != null)
+            if (string.IsNullOrWhiteSpace(read) && Serializer.DefaultValue != null)
             {
-                Write(DefaultValue);
+                Write(Serializer.DefaultValue);
 
                 return Read();
             }
 
-            return Deserialize.Invoke(read);
+            return Serializer.Deserialize(read);
         }
 
         public void Edit(Func<T, T> editor)

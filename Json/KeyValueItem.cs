@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using kawtn.IO.Serializable;
 
 namespace kawtn.IO.Json
 {
-    public class KeyValueItem<TKey, TValue> : JsonItem<Dictionary<TKey, TValue>>
+    public class KeyValueItem<TKey, TValue> : SerializableItem<Dictionary<TKey, TValue>>
     {
         public KeyValueItem(string location)
-            : base(location, defaultValue: new Dictionary<TKey, TValue>()) { }
+            : base(location, new KeyValueSerializer<TKey, TValue>()) { }
 
         public KeyValueItem(Location location)
             : this(location.Data) { }

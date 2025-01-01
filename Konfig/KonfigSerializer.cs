@@ -1,8 +1,10 @@
-﻿namespace kawtn.IO.Konfig
+﻿using kawtn.IO.Serializable;
+
+namespace kawtn.IO.Konfig
 {
-    public static class KonfigSerializer
+    public class KonfigSerializer<T> : Serializer<T>
     {
-        public static string Serialize<T>(T data)
+        public override string Serialize(T data)
         {
             Token[] tokens = Parser.Unparse(data);
 
@@ -11,7 +13,7 @@
             return content;
         }
 
-        public static T Deserialize<T>(string content)
+        public override T? Deserialize(string content)
         {
             Token[] tokens = new Lexer().Tokenization(content);
 

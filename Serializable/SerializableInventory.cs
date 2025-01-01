@@ -5,90 +5,32 @@ namespace kawtn.IO.Serializable
 {
     public class SerializableInventory<TValue> : SerializableInventory<string, TValue>
     {
-        public SerializableInventory
-            (
-                string location,
-                Func<TValue, string> serializer,
-                Func<string, TValue?> deserializer,
-                TValue? defaultValue = default
-            )
+        public SerializableInventory(string location, Serializer<TValue> serializer)
+            : base(location, serializer) { }
 
-            : base
-            (
-                location,
-                serializer,
-                deserializer,
-                defaultValue
-            )
-        { }
-
-        public SerializableInventory
-            (
-                Location location,
-                Func<TValue, string> serializer,
-                Func<string, TValue?> deserializer,
-                TValue? defaultValue = default
-            )
-
-            : base
-            (
-                location,
-                serializer,
-                deserializer,
-                defaultValue
-            )
-        { }
+        public SerializableInventory(Location location, Serializer<TValue> serializer)
+            : base(location, serializer) { }
     }
 
     public class SerializableInventory<TKey, TValue> : Inventory
         where TKey : IConvertible
     {
-        protected readonly Func<TValue, string> Serialize;
-        protected readonly Func<string, TValue?> Deserialize;
+        protected readonly Serializer<TValue> Serializer;
 
-        protected readonly TValue? DefaultValue;
-
-        public SerializableInventory
-            (
-                string location,
-                Func<TValue, string> serializer,
-                Func<string, TValue?> deserializer,
-                TValue? defaultValue = default
-            )
-
-            : base
-            (
-                location
-            )
+        public SerializableInventory(string location, Serializer<TValue> serializer)
+            : base(location)
         {
-            this.Serialize = serializer;
-            this.Deserialize = deserializer;
-
-            this.DefaultValue = defaultValue;
+            this.Serializer = serializer;
         }
 
-        public SerializableInventory
-            (
-                Location location,
-                Func<TValue, string> serializer,
-                Func<string, TValue?> deserializer,
-                TValue? defaultValue = default
-            )
-
-            : this
-            (
-                location.Data,
-                serializer,
-                deserializer,
-                defaultValue
-            )
-        { }
+        public SerializableInventory(Location location, Serializer<TValue> serializer)
+            : this(location.Data, serializer) { }
 
         public SerializableItem<TValue> CreateSerializableItem(TKey name)
         {
-            Location location = new Location(this, $"{name.ToString()}{ItemExtension}");
+            Location location = new Location(this, $"{name.ToString()}{this.ItemExtension}");
 
-            return new SerializableItem<TValue>(location, this.Serialize, this.Deserialize, this.DefaultValue);
+            return new SerializableItem<TValue>(location, Serializer);
         }
 
         public SerializableInventory<TKey, TValue> CreateSerializableInventory(TKey name)
@@ -96,7 +38,7 @@ namespace kawtn.IO.Serializable
             Location location = new Location(this, name.ToString());
 
             SerializableInventory<TKey, TValue> inventory =
-                new SerializableInventory<TKey, TValue>(location, this.Serialize, this.Deserialize, this.DefaultValue);
+                new SerializableInventory<TKey, TValue>(location, Serializer);
 
             inventory.ItemExtension = this.ItemExtension;
 
@@ -117,14 +59,14 @@ namespace kawtn.IO.Serializable
             item.Write(data);
         }
 
-        public IEnumerable<TValue> Read()
+        public new IEnumerable<TValue> Read()
         {
             List<TValue> list = new List<TValue>();
 
             foreach (Item baseItem in ReadItems())
             {
                 SerializableItem<TValue> item
-                    = new SerializableItem<TValue>(baseItem.Location, this.Serialize, this.Deserialize, this.DefaultValue);
+                    = new SerializableItem<TValue>(baseItem.Location, this.Serializer);
 
                 TValue? data = item.Read();
                 if (data != null)

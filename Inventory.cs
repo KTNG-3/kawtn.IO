@@ -22,9 +22,9 @@ namespace kawtn.IO
             }
         }
 
-        public string ItemExtension = string.Empty;
+        public string ItemExtension;
 
-        public Inventory(string location)
+        public Inventory(string location, string? itemExtension = null)
         {
             if (!location.EndsWith(Path.DirectorySeparatorChar)
                 && !location.EndsWith(Path.AltDirectorySeparatorChar))
@@ -33,10 +33,12 @@ namespace kawtn.IO
             }
 
             this.Location = new Location(location);
+
+            this.ItemExtension = itemExtension ?? string.Empty;
         }
 
-        public Inventory(Location location)
-            : this(location.Data) { }
+        public Inventory(Location location, string? itemExtension = null)
+            : this(location.Data, itemExtension) { }
 
         public Inventory()
             : this(new Location(ApplicationInventory.Temporary, Path.GetRandomFileName())) { }
@@ -130,13 +132,13 @@ namespace kawtn.IO
             return inventory;
         }
 
-        public Item Insert(Item item, bool changeItemExtension = true)
+        public Item Insert(Item item)
         {
             Create();
 
             Item insertedItem = item.InsertTo(this);
 
-            if (changeItemExtension)
+            if (!string.IsNullOrWhiteSpace(this.ItemExtension))
                 insertedItem.ChangeExtension(ItemExtension);
 
             return insertedItem;
@@ -149,43 +151,43 @@ namespace kawtn.IO
             return inventory.InsertTo(this);
         }
 
-        public IEnumerable<Location> Read(bool filterItemExtension = true)
+        public IEnumerable<Location> Read()
         {
             if (!IsExists())
                 return Array.Empty<Location>();
 
             IEnumerable<Location> read = Directory.GetFileSystemEntries(this.Location.Data).Select(x => new Location(x));
 
-            if (filterItemExtension)
+            if (string.IsNullOrWhiteSpace(this.ItemExtension))
+            {
+                return read;
+            }
+            else
             {
                 return read.Where(location =>
                 {
                     if (location.IsInventory())
                         return true;
 
-                    return location.ParseItem().GetExtension() == ItemExtension;
+                    return location.ParseItem().GetExtension() == this.ItemExtension;
                 });
-            }
-            else
-            {
-                return read;
             }
         }
 
-        public IEnumerable<Item> ReadItems(bool filterItemExtension = true)
+        public IEnumerable<Item> ReadItems()
         {
             if (!IsExists())
                 return Array.Empty<Item>();
 
             IEnumerable<Item> read = Directory.GetFiles(this.Location.Data).Select(x => new Item(x));
 
-            if (filterItemExtension)
+            if (string.IsNullOrWhiteSpace(this.ItemExtension))
             {
-                return read.Where(item => item.GetExtension() == ItemExtension);
+                return read;
             }
             else
             {
-                return read;
+                return read.Where(item => item.GetExtension() == this.ItemExtension);
             }
         }
 
@@ -256,11 +258,6 @@ namespace kawtn.IO
         public void ChangeName(string name)
         {
             if (GetName() == name) return;
-
-            if (name.Contains('.'))
-            {
-                throw new ArgumentException("extension should not be included in the name");
-            }
 
             Inventory? parent = GetParent();
             if (parent == null) return;
