@@ -23,31 +23,31 @@ namespace kawtn.IO
 
         public void Add(params FileAttributes[] attributes)
         {
-            FileAttributes read = Get();
+            FileAttributes read = this.Get();
 
             foreach (FileAttributes write in attributes)
             {
                 read |= write;
             }
 
-            Set(read);
+            this.Set(read);
         }
 
         public void Remove(params FileAttributes[] attributes)
         {
-            FileAttributes read = Get();
+            FileAttributes read = this.Get();
 
             foreach (FileAttributes write in attributes)
             {
                 read &= ~write;
             }
 
-            Set(read);
+            this.Set(read);
         }
 
         public bool Has(FileAttributes attributes)
         {
-            FileAttributes read = Get();
+            FileAttributes read = this.Get();
 
             return read.HasFlag(attributes);
         }

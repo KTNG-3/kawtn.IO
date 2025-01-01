@@ -69,62 +69,62 @@ namespace kawtn.IO.Konfig
 
         public static IEnumerable<bool> ToBoolean(IEnumerable<string> values)
         {
-            return values.Select(ToBoolean);
+            return values.Select(TypeConversion.ToBoolean);
         }
 
         public static IEnumerable<byte> ToByte(IEnumerable<string> values)
         {
-            return values.Select(ToByte);
+            return values.Select(TypeConversion.ToByte);
         }
 
         public static IEnumerable<char> ToChar(IEnumerable<string> values)
         {
-            return values.Select(ToChar);
+            return values.Select(TypeConversion.ToChar);
         }
 
         public static IEnumerable<DateTime> ToDateTime(IEnumerable<string> values)
         {
-            return values.Select(ToDateTime);
+            return values.Select(TypeConversion.ToDateTime);
         }
 
         public static IEnumerable<decimal> ToDecimal(IEnumerable<string> values)
         {
-            return values.Select(ToDecimal);
+            return values.Select(TypeConversion.ToDecimal);
         }
 
         public static IEnumerable<double> ToDouble(IEnumerable<string> values)
         {
-            return values.Select(ToDouble);
+            return values.Select(TypeConversion.ToDouble);
         }
 
         public static IEnumerable<float> ToFloat(IEnumerable<string> values)
         {
-            return values.Select(ToFloat);
+            return values.Select(TypeConversion.ToFloat);
         }
 
         public static IEnumerable<int> ToInt(IEnumerable<string> values)
         {
-            return values.Select(ToInt);
+            return values.Select(TypeConversion.ToInt);
         }
 
         public static IEnumerable<long> ToLong(IEnumerable<string> values)
         {
-            return values.Select(ToLong);
+            return values.Select(TypeConversion.ToLong);
         }
 
         public static IEnumerable<short> ToShort(IEnumerable<string> values)
         {
-            return values.Select(ToShort);
+            return values.Select(TypeConversion.ToShort);
         }
 
         public static IEnumerable<string> ToString(IEnumerable<string> values)
         {
-            return values.Select(ToString);
+            return values.Select(TypeConversion.ToString);
         }
 
         public static IEnumerable<object> ToEnum(Type enumType, IEnumerable<string> values)
         {
-            return values.Select(x => ToEnum(enumType, x));
+            return values.Select(x => TypeConversion.ToEnum(enumType, x));
         }
 
         public static T[] ToArray<T>(IEnumerable<T> values)
@@ -164,18 +164,41 @@ namespace kawtn.IO.Konfig
 
         public static object? Convert(Type type, string value)
         {
-            if (type == typeof(bool)) return ToBoolean(value);
-            if (type == typeof(byte)) return ToByte(value);
-            if (type == typeof(char)) return ToChar(value);
-            if (type == typeof(DateTime)) return ToDateTime(value);
-            if (type == typeof(decimal)) return ToDecimal(value);
-            if (type == typeof(double)) return ToDouble(value);
-            if (type == typeof(float)) return ToFloat(value);
-            if (type == typeof(int)) return ToInt(value);
-            if (type == typeof(long)) return ToLong(value);
-            if (type == typeof(short)) return ToShort(value);
-            if (type == typeof(string)) return ToString(value);
-            if (type.IsEnum) return ToEnum(type, value);
+            if (type == typeof(bool))
+                return TypeConversion.ToBoolean(value);
+
+            if (type == typeof(byte))
+                return TypeConversion.ToByte(value);
+
+            if (type == typeof(char))
+                return TypeConversion.ToChar(value);
+
+            if (type == typeof(DateTime))
+                return TypeConversion.ToDateTime(value);
+
+            if (type == typeof(decimal))
+                return TypeConversion.ToDecimal(value);
+
+            if (type == typeof(double))
+                return TypeConversion.ToDouble(value);
+
+            if (type == typeof(float))
+                return TypeConversion.ToFloat(value);
+
+            if (type == typeof(int))
+                return TypeConversion.ToInt(value);
+
+            if (type == typeof(long))
+                return TypeConversion.ToLong(value);
+
+            if (type == typeof(short))
+                return TypeConversion.ToShort(value);
+
+            if (type == typeof(string))
+                return TypeConversion.ToString(value);
+
+            if (type.IsEnum)
+                return TypeConversion.ToEnum(type, value);
 
             return null;
         }
@@ -183,24 +206,26 @@ namespace kawtn.IO.Konfig
         static object? ConvertCollection<TValue>(Type collectionType, IEnumerable<TValue> values)
         {
             if (collectionType.IsArray)
-                return ToArray(values);
+                return TypeConversion.ToArray(values);
 
             if (!collectionType.IsGenericType)
+            {
                 return null;
+            }    
 
             Type typeDefinition = collectionType.GetGenericTypeDefinition();
 
             if (typeDefinition == typeof(HashSet<>))
-                return ToHashSet(values);
+                return TypeConversion.ToHashSet(values);
 
             if (typeDefinition == typeof(List<>))
-                return ToList(values);
+                return TypeConversion.ToList(values);
 
             if (typeDefinition == typeof(Queue<>))
-                return ToQueue(values);
+                return TypeConversion.ToQueue(values);
 
             if (typeDefinition == typeof(Stack<>))
-                return ToStack(values);
+                return TypeConversion.ToStack(values);
 
             return null;
         }
@@ -211,18 +236,41 @@ namespace kawtn.IO.Konfig
                 ? type.GetGenericArguments().Single()
                 : type.GetElementType();
 
-            if (elementType == typeof(bool)) return ConvertCollection(type, ToBoolean(values));
-            if (elementType == typeof(byte)) return ConvertCollection(type, ToByte(values));
-            if (elementType == typeof(char)) return ConvertCollection(type, ToChar(values));
-            if (elementType == typeof(DateTime)) return ConvertCollection(type, ToDateTime(values));
-            if (elementType == typeof(decimal)) return ConvertCollection(type, ToDecimal(values));
-            if (elementType == typeof(double)) return ConvertCollection(type, ToDouble(values));
-            if (elementType == typeof(float)) return ConvertCollection(type, ToFloat(values));
-            if (elementType == typeof(int)) return ConvertCollection(type, ToInt(values));
-            if (elementType == typeof(long)) return ConvertCollection(type, ToLong(values));
-            if (elementType == typeof(short)) return ConvertCollection(type, ToShort(values));
-            if (elementType == typeof(string)) return ConvertCollection(type, ToString(values));
-            if (elementType.IsEnum) return ConvertCollection(type, ToEnum(elementType, values));
+            if (elementType == typeof(bool))
+                return TypeConversion.ConvertCollection(type, TypeConversion.ToBoolean(values));
+
+            if (elementType == typeof(byte))
+                return TypeConversion.ConvertCollection(type, TypeConversion.ToByte(values));
+
+            if (elementType == typeof(char))
+                return TypeConversion.ConvertCollection(type, TypeConversion.ToChar(values));
+
+            if (elementType == typeof(DateTime))
+                return TypeConversion.ConvertCollection(type, TypeConversion.ToDateTime(values));
+
+            if (elementType == typeof(decimal))
+                return TypeConversion.ConvertCollection(type, TypeConversion.ToDecimal(values));
+
+            if (elementType == typeof(double))
+                return TypeConversion.ConvertCollection(type, TypeConversion.ToDouble(values));
+
+            if (elementType == typeof(float))
+                return TypeConversion.ConvertCollection(type, TypeConversion.ToFloat(values));
+
+            if (elementType == typeof(int))
+                return TypeConversion.ConvertCollection(type, TypeConversion.ToInt(values));
+
+            if (elementType == typeof(long))
+                return TypeConversion.ConvertCollection(type, TypeConversion.ToLong(values));
+
+            if (elementType == typeof(short))
+                return TypeConversion.ConvertCollection(type, TypeConversion.ToShort(values));
+
+            if (elementType == typeof(string))
+                return TypeConversion.ConvertCollection(type, TypeConversion.ToString(values));
+
+            if (elementType.IsEnum)
+                return TypeConversion.ConvertCollection(type, TypeConversion.ToEnum(elementType, values));
 
             return null;
         }

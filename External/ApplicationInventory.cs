@@ -6,42 +6,67 @@ namespace kawtn.IO.External
 {
     public static class ApplicationInventory
     {
+        static readonly bool IsLinux;
         static readonly bool IsWindows;
         static readonly bool IsMacOS;
-        static readonly bool IsLinux;
 
         public static readonly Inventory Temporary;
 
         static ApplicationInventory()
         {
+            IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
             IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             IsMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-            IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
-            string tempPath = Location.Join(Path.GetTempPath(), $"kawtn.IO-{Path.GetRandomFileName()}");
-            Temporary = new Inventory(tempPath);
+            string tempLocation = Location.Join(Path.GetTempPath(), $"kawtn.IO-{Path.GetRandomFileName()}");
+            Temporary = new Inventory(tempLocation);
         }
 
-        public static Inventory Get(params string[] path)
+        static Inventory GetLinux(string location)
         {
-            string joinPath = Location.Join(path);
+            return new Inventory(location);
+        }
+
+        static Inventory GetWindows(string location)
+        {
+            string invLocation = Location.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), location);
+
+            return new Inventory(invLocation);
+        }
+
+        static Inventory GetMacOS(string location)
+        {
+            string invLocation = Location.Join("Library", "Application Support", location);
+
+            return new Inventory(invLocation);
+        }
+
+        public static Inventory? Get(string location)
+        {
+            if (IsLinux)
+                return ApplicationInventory.GetLinux(location);
 
             if (IsWindows)
-                joinPath = Location.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), joinPath);
+                return ApplicationInventory.GetWindows(location);
 
             if (IsMacOS)
-                joinPath = Location.Join("Library", "Application Support", joinPath);
+                return ApplicationInventory.GetMacOS(location);
 
-            return new Inventory(joinPath);
+            return null;
         }
 
-        public static Inventory GetByOS(string windows, string macos, string linux)
+        public static Inventory? GetByOS(string linux, string windows, string macos)
         {
-            if (IsWindows) return Get(windows);
-            if (IsMacOS) return Get(macos);
-            if (IsLinux) return Get(linux);
+            if (IsLinux)
+                return ApplicationInventory.GetLinux(linux);
 
-            throw new PlatformNotSupportedException();
+            if (IsWindows)
+                return ApplicationInventory.GetWindows(windows);
+
+            if (IsMacOS)
+                return ApplicationInventory.GetMacOS(macos);
+
+            return null;
         }
     }
 }

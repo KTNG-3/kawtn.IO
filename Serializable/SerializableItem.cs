@@ -17,8 +17,7 @@ namespace kawtn.IO.Serializable
 
         public void Write(T data)
         {
-            if (!Serializer.Validate(data))
-                return;
+            if (!Serializer.Validate(data)) return;
 
             Write(Serializer.Serialize(data));
         }
@@ -26,7 +25,10 @@ namespace kawtn.IO.Serializable
         public new T? Read()
         {
             if (!IsExists())
+            {
                 return default;
+            }
+
 
             string read = ReadString();
 

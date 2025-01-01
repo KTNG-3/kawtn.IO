@@ -12,9 +12,9 @@ namespace kawtn.IO
 
         public void Write(string data)
         {
-            Create();
+            this.Create();
 
-            File.WriteAllText(Location.Data, data);
+            File.WriteAllText(this.Location.Data, data);
         }
 
         public void WriteString(string data)
@@ -24,15 +24,12 @@ namespace kawtn.IO
 
         public new string Read()
         {
-            if (File.Exists(Location.Data))
+            if (File.Exists(this.Location.Data))
             {
-                return File.ReadAllText(Location.Data);
+                return File.ReadAllText(this.Location.Data);
+            }
 
-            }
-            else
-            {
-                return string.Empty;
-            }
+            return string.Empty;
         }
 
         public string ReadString()

@@ -14,5 +14,10 @@ namespace kawtn.IO.Json
         {
             return JsonSerializer.Deserialize<T>(content);
         }
+
+        public override bool Validate(T data)
+        {
+            return true;
+        }
     }
 }

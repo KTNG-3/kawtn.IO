@@ -87,7 +87,7 @@ namespace kawtn.IO.Konfig
 
         static MemberInfo[] GetMember(Type type)
         {
-            List<MemberInfo> members = new List<MemberInfo>();
+            List<MemberInfo> members = new();
 
             foreach (FieldInfo field in type.GetFields())
             {
@@ -106,34 +106,51 @@ namespace kawtn.IO.Konfig
             return members.ToArray();
         }
 
+        static MemberInfo? GetMember(Type type, string key)
+        {
+            foreach (MemberInfo member in Parser.GetMember(type))
+            {
+                if (Parser.GetMemberName(member) == key)
+                {
+                    return member;
+                }
+            }
+
+            return null;
+        }
+
         static string GetMemberName(MemberInfo member)
         {
-            string name = member.Name;
-
             DataMemberAttribute? dataMember = member.GetCustomAttribute<DataMemberAttribute>();
             if (dataMember != null && !string.IsNullOrWhiteSpace(dataMember.Name))
             {
-                name = dataMember.Name;
+                return dataMember.Name;
             }
 
             JsonPropertyNameAttribute? jsonProperty = member.GetCustomAttribute<JsonPropertyNameAttribute>();
             if (jsonProperty != null)
             {
-                name = jsonProperty.Name;
+                return jsonProperty.Name;
             }
 
-            return name;
+            return member.Name;
         }
 
-
-        static MemberInfo? GetMember(Type type, string key)
+        static object? GetMemberValue(MemberInfo member, object obj)
         {
-            foreach (MemberInfo member in GetMember(type))
+            if (member is PropertyInfo property)
             {
-                if (GetMemberName(member) == key)
+                if (!property.CanRead)
                 {
-                    return member;
+                    return null;
                 }
+
+                return property.GetValue(obj);
+            }
+
+            if (member is FieldInfo field)
+            {
+                return field.GetValue(obj);
             }
 
             return null;
@@ -154,33 +171,13 @@ namespace kawtn.IO.Konfig
             return null;
         }
 
-        static object? GetMemberValue(MemberInfo member, object obj)
-        {
-            if (member is PropertyInfo property)
-            {
-                if (!property.CanRead)
-                    return null;
-
-                return property.GetValue(obj);
-            }
-
-            if (member is FieldInfo field)
-            {
-                return field.GetValue(obj);
-            }
-
-            return null;
-        }
-
         static void SetMemberValue<T>(MemberInfo member, T obj, object value)
         {
-            if (value == null || GetMemberValueType(member) != value.GetType())
-                return;
+            if (value == null || Parser.GetMemberValueType(member) != value.GetType()) return;
 
             if (member is PropertyInfo property)
             {
-                if (!property.CanWrite)
-                    return;
+                if (!property.CanWrite) return;
 
                 property.SetValue(obj, value);
             }
@@ -193,24 +190,24 @@ namespace kawtn.IO.Konfig
 
         static void SetValue<T>(MemberInfo member, T obj, string value)
         {
-            Type? type = GetMemberValueType(member);
+            Type? type = Parser.GetMemberValueType(member);
             if (type == null) return;
 
             object? content = TypeConversion.Convert(type, value);
             if (content == null) return;
 
-            SetMemberValue(member, obj, content);
+            Parser.SetMemberValue(member, obj, content);
         }
 
         static void SetValue<T>(MemberInfo member, T obj, IEnumerable<string> values)
         {
-            Type? type = GetMemberValueType(member);
+            Type? type = Parser.GetMemberValueType(member);
             if (type == null) return;
 
             object? content = TypeConversion.Convert(type, values);
             if (content == null) return;
 
-            SetMemberValue(member, obj, content);
+            Parser.SetMemberValue(member, obj, content);
         }
 
         static T CreateInstance<T>()
@@ -241,9 +238,9 @@ namespace kawtn.IO.Konfig
 
             int i = 0;
 
-            Table globalTable = new Table(string.Empty);
-            List<Collection> globalList = new List<Collection>();
-            List<Table> tables = new List<Table>();
+            Table globalTable = new(string.Empty);
+            List<Collection> globalList = new();
+            List<Table> tables = new();
 
             Table? table = null;
             Collection? list = null;
@@ -288,7 +285,7 @@ namespace kawtn.IO.Konfig
 
                 if (token.Type == TokenType.Equal)
                 {
-                    Info data = new Info(
+                    Info data = new(
                         key: tokens[i - 1].Value,
                         value: tokens[i + 1].Value
                         );
@@ -306,49 +303,52 @@ namespace kawtn.IO.Konfig
                 i++;
             }
 
-            T obj = CreateInstance<T>();
-            if (obj == null) return obj;
+            T obj = Parser.CreateInstance<T>();
+            if (obj == null)
+            {
+                return obj;
+            }
 
             Type type = obj.GetType();
 
             foreach (Info value in globalTable.Values)
             {
-                MemberInfo? member = GetMember(type, value.Key);
+                MemberInfo? member = Parser.GetMember(type, value.Key);
                 if (member == null) continue;
 
-                SetValue(member, obj, value.Value);
+                Parser.SetValue(member, obj, value.Value);
             }
 
             foreach (Collection value in globalList)
             {
-                MemberInfo? member = GetMember(type, value.Key);
+                MemberInfo? member = Parser.GetMember(type, value.Key);
                 if (member == null) continue;
 
-                SetValue(member, obj, value.Values);
+                Parser.SetValue(member, obj, value.Values);
             }
 
             foreach (Table vTable in tables)
             {
-                MemberInfo? memberTable = GetMember(type, vTable.Key);
+                MemberInfo? memberTable = Parser.GetMember(type, vTable.Key);
                 if (memberTable == null) continue;
 
-                Type? memberValueType = GetMemberValueType(memberTable);
+                Type? memberValueType = Parser.GetMemberValueType(memberTable);
                 if (memberValueType == null) continue;
 
-                object? objTable = CreateInstance(memberValueType);
+                object? objTable = Parser.CreateInstance(memberValueType);
                 if (objTable == null) continue;
 
                 Type typeTable = objTable.GetType();
 
                 foreach (Info value in vTable.Values)
                 {
-                    MemberInfo? member = GetMember(typeTable, value.Key);
+                    MemberInfo? member = Parser.GetMember(typeTable, value.Key);
                     if (member == null) continue;
 
-                    SetValue(member, objTable, value.Value);
+                    Parser.SetValue(member, objTable, value.Value);
                 }
 
-                SetMemberValue(memberTable, obj, objTable);
+                Parser.SetMemberValue(memberTable, obj, objTable);
             }
 
             return obj;
@@ -357,40 +357,46 @@ namespace kawtn.IO.Konfig
         public static Token[] Unparse<T>(T obj)
         {
             if (obj == null)
-                return Array.Empty<Token>();
-
-            Dictionary<string, string> globalTable = new Dictionary<string, string>();
-            Dictionary<string, string[]> globalList = new Dictionary<string, string[]>();
-            Dictionary<string, Dictionary<string, string>> tables = new Dictionary<string, Dictionary<string, string>>();
-
-            foreach (MemberInfo member in GetMember(obj.GetType()))
             {
-                string key = GetMemberName(member);
+                return Array.Empty<Token>();
+            }
 
-                object? value = GetMemberValue(member, obj);
+            Dictionary<string, string> globalTable = new();
+            Dictionary<string, string[]> globalList = new();
+            Dictionary<string, Dictionary<string, string>> tables = new();
+
+            foreach (MemberInfo member in Parser.GetMember(obj.GetType()))
+            {
+                string key = Parser.GetMemberName(member);
+
+                object? value = Parser.GetMemberValue(member, obj);
                 if (value == null) continue;
 
                 IEnumerable<object>? objList = TypeConversion.ToObjectCollection(value);
 
                 if (objList != null)
                 {
-                    List<string> objStrList = new List<string>();
+                    List<string> objStrList = new();
 
                     foreach (object vObj in objList)
                     {
-                        string? vObjString = Value(vObj);
+                        string? vObjString = Parser.Value(vObj);
 
                         if (!string.IsNullOrWhiteSpace(vObjString))
+                        {
                             objStrList.Add(vObjString);
+                        }
                     }
 
                     if (objStrList.Count != 0)
+                    {
                         globalList.Add(key, objStrList.ToArray());
+                    }
 
                     continue;
                 }
 
-                string? vString = Value(value);
+                string? vString = Parser.Value(value);
 
                 if (!string.IsNullOrWhiteSpace(vString))
                 {
@@ -398,26 +404,30 @@ namespace kawtn.IO.Konfig
                     continue;
                 }
 
-                Dictionary<string, string> values = new Dictionary<string, string>();
+                Dictionary<string, string> values = new();
 
-                foreach (MemberInfo subMember in GetMember(value.GetType()))
+                foreach (MemberInfo subMember in Parser.GetMember(value.GetType()))
                 {
-                    string subKey = GetMemberName(subMember);
+                    string subKey = Parser.GetMemberName(subMember);
 
-                    object? subValue = GetMemberValue(subMember, value);
+                    object? subValue = Parser.GetMemberValue(subMember, value);
                     if (subValue == null) continue;
 
-                    string? subvString = Value(subValue);
+                    string? subvString = Parser.Value(subValue);
 
                     if (!string.IsNullOrWhiteSpace(subvString))
+                    {
                         values.Add(subKey, subvString);
+                    }
                 }
 
                 if (values.Count != 0)
+                {
                     tables.Add(key, values);
+                }
             }
 
-            List<Token> tokens = new List<Token>();
+            List<Token> tokens = new();
 
             foreach (string key in globalTable.Keys)
             {
@@ -425,10 +435,10 @@ namespace kawtn.IO.Konfig
 
                 tokens.AddRange(new Token[]
                 {
-                    new Token(TokenType.String, key),
-                    new Token(TokenType.Equal),
-                    new Token(TokenType.String, value),
-                    new Token(TokenType.NewLine)
+                    new(TokenType.String, key),
+                    new(TokenType.Equal),
+                    new(TokenType.String, value),
+                    new(TokenType.NewLine)
                 });
             }
 
@@ -438,9 +448,9 @@ namespace kawtn.IO.Konfig
 
                 tokens.AddRange(new Token[]
                     {
-                        new Token(TokenType.NewLine),
-                        new Token(TokenType.Table, name),
-                        new Token(TokenType.NewLine)
+                        new(TokenType.NewLine),
+                        new(TokenType.Table, name),
+                        new(TokenType.NewLine)
                     });
 
                 foreach (string key in values.Keys)
@@ -449,10 +459,10 @@ namespace kawtn.IO.Konfig
 
                     tokens.AddRange(new Token[]
                     {
-                        new Token(TokenType.String, key),
-                        new Token(TokenType.Equal),
-                        new Token(TokenType.String, value),
-                        new Token(TokenType.NewLine)
+                        new(TokenType.String, key),
+                        new(TokenType.Equal),
+                        new(TokenType.String, value),
+                        new(TokenType.NewLine)
                     });
                 }
 
@@ -465,17 +475,17 @@ namespace kawtn.IO.Konfig
 
                 tokens.AddRange(new Token[]
                     {
-                        new Token(TokenType.NewLine),
-                        new Token(TokenType.List, key),
-                        new Token(TokenType.NewLine)
+                        new(TokenType.NewLine),
+                        new(TokenType.List, key),
+                        new(TokenType.NewLine)
                     });
 
                 foreach (string value in values)
                 {
                     tokens.AddRange(new Token[]
                     {
-                        new Token(TokenType.String, value),
-                        new Token(TokenType.NewLine)
+                        new(TokenType.String, value),
+                        new(TokenType.NewLine)
                     });
                 }
 

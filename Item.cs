@@ -53,7 +53,7 @@ namespace kawtn.IO
 
         public string GetName()
         {
-            string sysName = GetSystemName();
+            string sysName = this.GetSystemName();
 
             int dotIndex = sysName.IndexOf('.');
 
@@ -62,15 +62,13 @@ namespace kawtn.IO
             {
                 return sysName;
             }
-            else
-            {
-                return sysName.Substring(0, dotIndex);
-            }
+
+            return sysName.Substring(0, dotIndex);
         }
 
         public string GetExtension()
         {
-            string sysName = GetSystemName();
+            string sysName = this.GetSystemName();
 
             int dotIndex = sysName.IndexOf('.');
 
@@ -79,26 +77,30 @@ namespace kawtn.IO
             {
                 return string.Empty;
             }
-            else
-            {
-                return sysName.Substring(dotIndex);
-            }
+
+            return sysName.Substring(dotIndex);
         }
 
         public Inventory? GetParent()
         {
             string? path = Path.GetDirectoryName(this.Location.Data);
-            if (path == null) return null;
+            if (path == null)
+            {
+                return null;
+            }
 
             return new Inventory(path);
         }
 
         public void Create()
         {
-            if (IsExists()) return;
+            if (this.IsExists()) return;
 
             Inventory? parent = GetParent();
-            if (parent != null) parent.Create();
+            if (parent != null)
+            {
+                parent.Create();
+            }
 
             File.WriteAllBytes(this.Location.Data, Array.Empty<byte>());
         }
@@ -117,7 +119,7 @@ namespace kawtn.IO
 
         public void Write(IEnumerable<byte> data)
         {
-            Create();
+            this.Create();
 
             File.WriteAllBytes(this.Location.Data, data.ToArray());
         }
@@ -133,10 +135,8 @@ namespace kawtn.IO
             {
                 return File.ReadAllBytes(this.Location.Data);
             }
-            else
-            {
-                return Array.Empty<byte>();
-            }
+
+            return Array.Empty<byte>();
         }
 
         public IEnumerable<byte> ReadByte()
@@ -152,9 +152,9 @@ namespace kawtn.IO
 
         public void Clone(Item destination)
         {
-            if (!IsExists()) return;
+            if (!this.IsExists()) return;
 
-            destination.Write(Read());
+            destination.Write(this.Read());
 
             FileAttributes read = this.Attributes.Get();
             destination.Attributes.Set(read);
@@ -162,26 +162,26 @@ namespace kawtn.IO
 
         public void Move(Item destination)
         {
-            Clone(destination);
-            Delete();
+            this.Clone(destination);
+            this.Delete();
 
             this.Location = destination.Location;
         }
 
         public Item InsertTo(Inventory destination)
         {
-            Item item = destination.CreateItem(GetName());
+            Item item = destination.CreateItem(this.GetName());
 
-            Clone(item);
+            this.Clone(item);
 
             return item;
         }
 
         public void TransferTo(Inventory destination)
         {
-            Item item = InsertTo(destination);
+            Item item = this.InsertTo(destination);
 
-            Delete();
+            this.Delete();
 
             this.Location = item.Location;
         }
@@ -219,13 +219,12 @@ namespace kawtn.IO
                 return;
             }
 
-            if (name.StartsWith('.'))
+            if (!name.StartsWith('.'))
             {
-                ChangeSystemName($"{GetName()}{name}");
-                return;
+                name = $".{name}";
             }
 
-            ChangeSystemName($"{GetName()}.{name}");
+            ChangeSystemName($"{GetName()}{name}");
         }
 
         public void Delete()

@@ -15,14 +15,17 @@ namespace kawtn.IO.Json
         public bool IsExists(TKey key)
         {
             Dictionary<TKey, TValue>? data = base.Read();
-            if (data == null) return false;
+            if (data == null)
+            {
+                return false;
+            }
 
             return data.ContainsKey(key);
         }
 
         public void Write(TKey key, TValue value)
         {
-            Edit(x =>
+            this.Edit(x =>
             {
                 x[key] = value;
 
@@ -33,24 +36,31 @@ namespace kawtn.IO.Json
         public TValue? Read(TKey key)
         {
             Dictionary<TKey, TValue>? data = base.Read();
-            if (data == null) return default;
-            if (!data.TryGetValue(key, out TValue? value)) return default;
+            if (data == null)
+            {
+                return default;
+            }
+
+            if (!data.TryGetValue(key, out TValue? value))
+            {
+                return default;
+            }
 
             return value;
         }
 
         public void Edit(TKey key, Func<TValue, TValue> editor)
         {
-            TValue? read = Read(key);
+            TValue? read = this.Read(key);
             if (read == null) return;
 
             TValue value = editor.Invoke(read);
-            Write(key, value);
+            this.Write(key, value);
         }
 
         public void Delete(TKey key)
         {
-            Edit(x =>
+            this.Edit(x =>
             {
                 x.Remove(key);
 

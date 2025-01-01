@@ -20,5 +20,22 @@ namespace kawtn.IO.Konfig
 
         public KonfigInventory(Location location)
             : this(location.Data) { }
+
+        public KonfigItem<TValue> CreateKonfigItem(string name)
+        {
+            Location location = new(this, $"{name}{this.ItemExtension}");
+
+            return new KonfigItem<TValue>(location);
+        }
+
+        public KonfigInventory<TKey, TValue> CreateKonfigInventory(string name)
+        {
+            Location location = new(this, name);
+
+            return new KonfigInventory<TKey, TValue>(location)
+            {
+                ItemExtension = this.ItemExtension
+            };
+        }
     }
 }

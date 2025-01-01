@@ -21,5 +21,10 @@ namespace kawtn.IO.Konfig
 
             return data;
         }
+
+        public override bool Validate(T data)
+        {
+            return true;
+        }
     }
 }

@@ -1,9 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
 
-using kawtn.IO.Json;
-using kawtn.IO.Konfig;
-
 namespace kawtn.IO
 {
     // Path
@@ -11,42 +8,45 @@ namespace kawtn.IO
     {
         public readonly string Data;
 
-        public Location(params string[] str)
+        public Location(params string[] path)
         {
-            this.Data = Path.GetFullPath(Join(str));
+            this.Data = Path.GetFullPath(Join(path));
         }
 
-        public Location(Location baseLocation, params string[] str)
-            : this(baseLocation.Data, Join(str)) { }
+        public Location(Location baseLocation, params string[] path)
+            : this(baseLocation.Data, Join(path)) { }
 
-        public Location(Item baseLocation, params string[] str)
-            : this(baseLocation.Location.Data, Join(str)) { }
+        public Location(Item baseLocation, params string[] path)
+            : this(baseLocation.Location.Data, Join(path)) { }
 
-        public Location(Inventory baseLocation, params string[] str)
-            : this(baseLocation.Location.Data, Join(str)) { }
+        public Location(Inventory baseLocation, params string[] path)
+            : this(baseLocation.Location.Data, Join(path)) { }
 
-        public static string Join(params string[] str)
+        public static string Join(params string[] path)
         {
-            if (str.Length == 0) return string.Empty;
-
-            string joinStr = str[0];
-
-            for (int i = 1; i < str.Length; i++)
+            if (path.Length == 0)
             {
-                joinStr = Path.Join(joinStr, str[i]);
+                return string.Empty;
+            }
+
+            string joinStr = path[0];
+
+            for (int i = 1; i < path.Length; i++)
+            {
+                joinStr = Path.Join(joinStr, path[i]);
             }
 
             return joinStr;
         }
 
-        public static string Join(params Location[] str)
+        public static string Join(params Location[] location)
         {
-            return Join(str.Select(x => x.Data).ToArray());
+            return Location.Join(location.Select(x => x.Data).ToArray());
         }
 
         public bool IsExists()
         {
-            return IsItem() || IsInventory();
+            return this.IsItem() || this.IsInventory();
         }
 
         public bool IsItem()
@@ -62,45 +62,12 @@ namespace kawtn.IO
         public Inventory? GetRoot()
         {
             string? path = Path.GetPathRoot(this.Data);
-
             if (string.IsNullOrWhiteSpace(path))
             {
                 return null;
             }
-            else
-            {
-                return new Inventory(path);
-            }
-        }
 
-        public Item ParseItem()
-        {
-            return new Item(this);
-        }
-
-        public JsonItem<T> ParseJsonItem<T>()
-        {
-            return new JsonItem<T>(this);
-        }
-
-        public KonfigItem<T> ParseKonfigItem<T>()
-        {
-            return new KonfigItem<T>(this);
-        }
-
-        public Inventory ParseInventory()
-        {
-            return new Inventory(this);
-        }
-
-        public JsonInventory<T> ParseJsonInventory<T>()
-        {
-            return new JsonInventory<T>(this);
-        }
-
-        public KonfigInventory<T> ParseKonfigInventory<T>()
-        {
-            return new KonfigInventory<T>(this);
+            return new Inventory(path);
         }
     }
 }

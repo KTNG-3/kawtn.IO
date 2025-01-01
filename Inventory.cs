@@ -5,8 +5,6 @@ using System.IO.Compression;
 using System.Linq;
 
 using kawtn.IO.External;
-using kawtn.IO.Json;
-using kawtn.IO.Konfig;
 
 namespace kawtn.IO
 {
@@ -50,7 +48,7 @@ namespace kawtn.IO
 
         public bool IsEmpty()
         {
-            return Read().Count() == 0;
+            return this.Read().Count() == 0;
         }
 
         public void Hidden(bool hidden = true)
@@ -72,69 +70,47 @@ namespace kawtn.IO
 
         public string GetName()
         {
-            return GetInfo().Name;
+            return this.GetInfo().Name;
         }
 
         public Inventory? GetParent()
         {
-            DirectoryInfo? dir = GetInfo().Parent;
-            if (dir == null) return null;
+            DirectoryInfo? dir = this.GetInfo().Parent;
+            if (dir == null)
+            {
+                return null;
+            }
 
             return new Inventory(dir.FullName);
         }
 
         public void Create()
         {
-            if (IsExists()) return;
+            if (this.IsExists()) return;
 
             Directory.CreateDirectory(this.Location.Data);
         }
 
         public Item CreateItem(string name)
         {
-            return new Location(this, $"{name}{ItemExtension}").ParseItem();
-        }
+            Location location = new(this, $"{name}{this.ItemExtension}");
 
-        public JsonItem<T> CreateJsonItem<T>(string name)
-        {
-            return new Location(this, $"{name}{ItemExtension}").ParseJsonItem<T>();
-        }
-
-        public KonfigItem<T> CreateKonfigItem<T>(string name)
-        {
-            return new Location(this, $"{name}{ItemExtension}").ParseKonfigItem<T>();
+            return new Item(location);
         }
 
         public Inventory CreateInventory(string name)
         {
-            Inventory inventory = new Location(this, name).ParseInventory();
+            Location location = new(this, name);
 
-            inventory.ItemExtension = this.ItemExtension;
-
-            return inventory;
-        }
-
-        public JsonInventory<T> CreateJsonInventory<T>(string name)
-        {
-            JsonInventory<T> inventory = new Location(this, name).ParseJsonInventory<T>();
-
-            inventory.ItemExtension = this.ItemExtension;
-
-            return inventory;
-        }
-
-        public KonfigInventory<T> CreateKonfigInventory<T>(string name)
-        {
-            KonfigInventory<T> inventory = new Location(this, name).ParseKonfigInventory<T>();
-
-            inventory.ItemExtension = this.ItemExtension;
-
-            return inventory;
+            return new Inventory(location)
+            {
+                ItemExtension = this.ItemExtension
+            };
         }
 
         public Item Insert(Item item)
         {
-            Create();
+            this.Create();
 
             Item insertedItem = item.InsertTo(this);
 
@@ -146,7 +122,7 @@ namespace kawtn.IO
 
         public Inventory Insert(Inventory inventory)
         {
-            Create();
+            this.Create();
 
             return inventory.InsertTo(this);
         }
@@ -169,7 +145,7 @@ namespace kawtn.IO
                     if (location.IsInventory())
                         return true;
 
-                    return location.ParseItem().GetExtension() == this.ItemExtension;
+                    return new Item(location).GetExtension() == this.ItemExtension;
                 });
             }
         }
@@ -206,7 +182,7 @@ namespace kawtn.IO
 
         public void Clone(Inventory destination)
         {
-            if (!IsExists()) return;
+            if (!this.IsExists()) return;
 
             if (!destination.IsEmpty())
             {
@@ -215,12 +191,12 @@ namespace kawtn.IO
 
             destination.Create();
 
-            foreach (Item item in ReadItems())
+            foreach (Item item in this.ReadItems())
             {
                 item.InsertTo(destination);
             }
 
-            foreach (Inventory inventory in ReadInventories())
+            foreach (Inventory inventory in this.ReadInventories())
             {
                 inventory.InsertTo(destination);
             }
@@ -231,44 +207,44 @@ namespace kawtn.IO
 
         public void Move(Inventory destination)
         {
-            Clone(destination);
-            Delete();
+            this.Clone(destination);
+            this.Delete();
 
             this.Location = destination.Location;
         }
 
         public Inventory InsertTo(Inventory destination)
         {
-            Inventory inventory = destination.CreateInventory(GetName());
+            Inventory inventory = destination.CreateInventory(this.GetName());
 
-            Clone(inventory);
+            this.Clone(inventory);
 
             return inventory;
         }
 
         public void TransferTo(Inventory destination)
         {
-            Inventory inventory = InsertTo(destination);
+            Inventory inventory = this.InsertTo(destination);
 
-            Delete();
+            this.Delete();
 
             this.Location = inventory.Location;
         }
 
         public void ChangeName(string name)
         {
-            if (GetName() == name) return;
+            if (this.GetName() == name) return;
 
-            Inventory? parent = GetParent();
+            Inventory? parent = this.GetParent();
             if (parent == null) return;
 
             Inventory inventory = parent.CreateInventory(name);
-            Move(inventory);
+            this.Move(inventory);
         }
 
         public void Delete()
         {
-            if (!IsExists()) return;
+            if (!this.IsExists()) return;
 
             Directory.Delete(this.Location.Data, true);
         }

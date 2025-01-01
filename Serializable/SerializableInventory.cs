@@ -28,45 +28,42 @@ namespace kawtn.IO.Serializable
 
         public SerializableItem<TValue> CreateSerializableItem(TKey name)
         {
-            Location location = new Location(this, $"{name.ToString()}{this.ItemExtension}");
+            Location location = new(this, $"{name}{this.ItemExtension}");
 
-            return new SerializableItem<TValue>(location, Serializer);
+            return new SerializableItem<TValue>(location, this.Serializer);
         }
 
         public SerializableInventory<TKey, TValue> CreateSerializableInventory(TKey name)
         {
-            Location location = new Location(this, name.ToString());
+            Location location = new(this, name.ToString());
 
-            SerializableInventory<TKey, TValue> inventory =
-                new SerializableInventory<TKey, TValue>(location, Serializer);
-
-            inventory.ItemExtension = this.ItemExtension;
-
-            return inventory;
+            return new SerializableInventory<TKey, TValue>(location, this.Serializer)
+            {
+                ItemExtension = this.ItemExtension
+            };
         }
 
         public bool IsExists(TKey name)
         {
-            Item item = CreateItem(name.ToString());
+            Item item = this.CreateItem(name.ToString());
 
             return item.IsExists();
         }
 
         public void Write(TKey name, TValue data)
         {
-            SerializableItem<TValue> item = CreateSerializableItem(name);
+            SerializableItem<TValue> item = this.CreateSerializableItem(name);
 
             item.Write(data);
         }
 
         public new IEnumerable<TValue> Read()
         {
-            List<TValue> list = new List<TValue>();
+            List<TValue> list = new();
 
-            foreach (Item baseItem in ReadItems())
+            foreach (Item baseItem in this.ReadItems())
             {
-                SerializableItem<TValue> item
-                    = new SerializableItem<TValue>(baseItem.Location, this.Serializer);
+                SerializableItem<TValue> item = new(baseItem.Location, this.Serializer);
 
                 TValue? data = item.Read();
                 if (data != null)
@@ -80,21 +77,21 @@ namespace kawtn.IO.Serializable
 
         public TValue? Read(TKey name)
         {
-            SerializableItem<TValue> item = CreateSerializableItem(name);
+            SerializableItem<TValue> item = this.CreateSerializableItem(name);
 
             return item.Read();
         }
 
         public void Edit(TKey name, Func<TValue, TValue> editor)
         {
-            SerializableItem<TValue> item = CreateSerializableItem(name);
+            SerializableItem<TValue> item = this.CreateSerializableItem(name);
 
             item.Edit(editor);
         }
 
         public void Delete(TKey name)
         {
-            Item item = CreateItem(name.ToString());
+            Item item = this.CreateItem(name.ToString());
 
             item.Delete();
         }
