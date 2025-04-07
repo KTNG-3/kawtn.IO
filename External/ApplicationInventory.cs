@@ -55,6 +55,18 @@ namespace kawtn.IO.External
             return null;
         }
 
+        public static Inventory GetOrThrow(string location)
+        {
+            Inventory? inv = Get(location);
+
+            if (inv == null)
+            {
+                throw new KawtnIOException(new PlatformNotSupportedException());
+            }
+
+            return inv;
+        }
+
         public static Inventory? GetByOS(string linux, string windows, string macos)
         {
             if (IsLinux)
@@ -67,6 +79,18 @@ namespace kawtn.IO.External
                 return ApplicationInventory.GetMacOS(macos);
 
             return null;
+        }
+
+        public static Inventory GetByOSOrThrow(string linux, string windows, string macos)
+        {
+            Inventory? inv = GetByOS(linux, windows, macos);
+
+            if (inv == null)
+            {
+                throw new KawtnIOException(new PlatformNotSupportedException());
+            }
+
+            return inv;
         }
     }
 }

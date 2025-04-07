@@ -203,7 +203,7 @@ namespace kawtn.IO
 
             if (name.Contains('.'))
             {
-                throw new ArgumentException("extension should not be included in the name");
+                throw new KawtnIOException("extension should not be included in the name", new ArgumentException(name));
             }
 
             ChangeSystemName($"{name}{GetExtension()}");

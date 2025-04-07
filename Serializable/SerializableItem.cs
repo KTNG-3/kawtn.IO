@@ -29,7 +29,6 @@ namespace kawtn.IO.Serializable
                 return default;
             }
 
-
             string read = ReadString();
 
             if (string.IsNullOrWhiteSpace(read) && Serializer.DefaultValue != null)
@@ -40,6 +39,18 @@ namespace kawtn.IO.Serializable
             }
 
             return Serializer.Deserialize(read);
+        }
+
+        public T ReadOrThrow()
+        {
+            T? value = Read();
+
+            if (value == null)
+            {
+                throw new KawtnIOException($"Unable to read {this.Location}");
+            }
+
+            return value;
         }
 
         public void Edit(Func<T, T> editor)

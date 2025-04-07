@@ -14,15 +14,15 @@ namespace kawtn.IO
         }
 
         public Location(Location baseLocation, params string[] path)
-            : this(baseLocation.Data, Join(path)) { }
+            : this(Location.Join(baseLocation, path)) { }
 
         public Location(Item baseLocation, params string[] path)
-            : this(baseLocation.Location.Data, Join(path)) { }
+            : this(Location.Join(baseLocation.Location, path)) { }
 
         public Location(Inventory baseLocation, params string[] path)
-            : this(baseLocation.Location.Data, Join(path)) { }
+            : this(Location.Join(baseLocation.Location, path)) { }
 
-        public static string Join(params string[] path)
+        static string _Join(params string[] path)
         {
             if (path.Length == 0)
             {
@@ -39,9 +39,34 @@ namespace kawtn.IO
             return joinStr;
         }
 
+        public static string Join(params string[] path)
+        {
+            return Location._Join(path);
+        }
+
         public static string Join(params Location[] location)
         {
-            return Location.Join(location.Select(x => x.Data).ToArray());
+            return Location._Join(location.Select(x => x.Data).ToArray());
+        }
+
+        public static string Join(string path, params string[] paths)
+        {
+            return Location._Join(path, Location._Join(paths));
+        }
+
+        public static string Join(string path, params Location[] locations)
+        {
+            return Location._Join(path, Location.Join(locations));
+        }
+
+        public static string Join(Location location, params string[] locations)
+        {
+            return Location._Join(location.Data, Location._Join(locations));
+        }
+
+        public static string Join(Location location, params Location[] locations)
+        {
+            return Location._Join(location.Data, Location.Join(locations));
         }
 
         public bool IsExists()
@@ -68,6 +93,11 @@ namespace kawtn.IO
             }
 
             return new Inventory(path);
+        }
+
+        public override string ToString()
+        {
+            return this.Data;
         }
     }
 }

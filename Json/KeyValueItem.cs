@@ -49,6 +49,18 @@ namespace kawtn.IO.Json
             return value;
         }
 
+        public TValue ReadOrThrow(TKey key)
+        {
+            TValue? value = Read(key);
+
+            if (value == null)
+            {
+                throw new KawtnIOException($"Unable to read {this.Location} at key \"{key}\"");
+            }
+
+            return value;
+        }
+
         public void Edit(TKey key, Func<TValue, TValue> editor)
         {
             TValue? read = this.Read(key);

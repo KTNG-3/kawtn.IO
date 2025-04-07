@@ -76,8 +76,7 @@ namespace kawtn.IO.Konfig
                 type == typeof(float) ||
                 type == typeof(int) ||
                 type == typeof(long) ||
-                type == typeof(short) ||
-                type == typeof(string))
+                type == typeof(short))
             {
                 return str;
             }
@@ -398,8 +397,13 @@ namespace kawtn.IO.Konfig
 
                 string? vString = Parser.Value(value);
 
-                if (!string.IsNullOrWhiteSpace(vString))
+                if (vString != null)
                 {
+                    if (string.IsNullOrWhiteSpace(vString))
+                    {
+                        continue;
+                    }
+
                     globalTable.Add(key, vString);
                     continue;
                 }

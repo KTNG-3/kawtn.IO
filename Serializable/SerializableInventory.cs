@@ -66,10 +66,27 @@ namespace kawtn.IO.Serializable
                 SerializableItem<TValue> item = new(baseItem.Location, this.Serializer);
 
                 TValue? data = item.Read();
+
                 if (data != null)
                 {
                     list.Add(data);
                 }
+            }
+
+            return list;
+        }
+
+        public IEnumerable<TValue> ReadOrThrow()
+        {
+            List<TValue> list = new();
+
+            foreach (Item baseItem in this.ReadItems())
+            {
+                SerializableItem<TValue> item = new(baseItem.Location, this.Serializer);
+
+                TValue data = item.ReadOrThrow();
+
+                list.Add(data);
             }
 
             return list;
@@ -80,6 +97,13 @@ namespace kawtn.IO.Serializable
             SerializableItem<TValue> item = this.CreateSerializableItem(name);
 
             return item.Read();
+        }
+
+        public TValue ReadOrThrow(TKey name)
+        {
+            SerializableItem<TValue> item = this.CreateSerializableItem(name);
+
+            return item.ReadOrThrow();
         }
 
         public void Edit(TKey name, Func<TValue, TValue> editor)

@@ -186,7 +186,7 @@ namespace kawtn.IO
 
             if (!destination.IsEmpty())
             {
-                throw new IOException("inventory not empty");
+                throw new KawtnIOException("destination inventory is not empty");
             }
 
             destination.Create();
