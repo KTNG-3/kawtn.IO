@@ -350,6 +350,41 @@ namespace kawtn.IO.Konfig
                 Parser.SetMemberValue(memberTable, obj, objTable);
             }
 
+            foreach (MemberInfo member in GetMember(type))
+            {
+                if (Parser.GetMemberValue(member, obj) != null) continue;
+
+                Type? memberType = Parser.GetMemberValueType(member);
+                if (memberType == null) continue;
+
+                if (memberType.IsArray)
+                {
+                    Parser.SetMemberValue(member, obj, Array.CreateInstance(memberType.GetElementType(), 0));
+                }
+                else if (memberType.IsGenericType)
+                {
+                    Type typeDefinition = memberType.GetGenericTypeDefinition();
+                    Type elementType = memberType.GetGenericArguments().Single();
+
+                    if (typeDefinition == typeof(HashSet<>))
+                    {
+                        Parser.SetMemberValue(member, obj, Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType)));
+                    }
+                    else if (typeDefinition == typeof(List<>))
+                    {
+                        Parser.SetMemberValue(member, obj, Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType)));
+                    }
+                    else if (typeDefinition == typeof(Queue<>))
+                    {
+                        Parser.SetMemberValue(member, obj, Activator.CreateInstance(typeof(Queue<>).MakeGenericType(elementType)));
+                    }
+                    else if (typeDefinition == typeof(Stack<>))
+                    {
+                        Parser.SetMemberValue(member, obj, Activator.CreateInstance(typeof(Stack<>).MakeGenericType(elementType)));
+                    }
+                }
+            }
+
             return obj;
         }
 
