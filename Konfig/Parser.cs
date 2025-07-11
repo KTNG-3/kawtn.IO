@@ -155,22 +155,30 @@ namespace kawtn.IO.Konfig
             return null;
         }
 
-        static Type? GetMemberValueType(MemberInfo member)
+        static Type? GetMemberValueActualType(MemberInfo member)
         {
             if (member is PropertyInfo property)
             {
-                return TypeConversion.NotNullableType(property.PropertyType);
+                return property.PropertyType;
             }
 
             if (member is FieldInfo field)
             {
-                return TypeConversion.NotNullableType(field.FieldType);
+                return field.FieldType;
             }
 
             return null;
         }
 
-        static void SetMemberValue<T>(MemberInfo member, T obj, object value)
+        static Type? GetMemberValueType(MemberInfo member)
+        {
+            Type? actualType = GetMemberValueActualType(member);
+            if (actualType == null) return null;
+
+            return TypeConversion.NotNullableType(actualType);
+        }
+
+        static void SetMemberValue<T>(MemberInfo member, T obj, object? value)
         {
             if (value == null || Parser.GetMemberValueType(member) != value.GetType()) return;
 
@@ -209,7 +217,7 @@ namespace kawtn.IO.Konfig
             Parser.SetMemberValue(member, obj, content);
         }
 
-        static T CreateInstance<T>()
+        static T? CreateInstance<T>()
         {
             try
             {
@@ -217,10 +225,16 @@ namespace kawtn.IO.Konfig
             }
             catch { }
 
-            return (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
+            try
+            {
+                return (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
+            }
+            catch { }
+
+            return default(T);
         }
 
-        static object CreateInstance(Type type)
+        static object? CreateInstance(Type type)
         {
             try
             {
@@ -228,10 +242,16 @@ namespace kawtn.IO.Konfig
             }
             catch { }
 
-            return RuntimeHelpers.GetUninitializedObject(type);
+            try
+            {
+                return RuntimeHelpers.GetUninitializedObject(type);
+            }
+            catch { }
+
+            return null;
         }
 
-        public static T Parse<T>(Token[] tokens)
+        public static T? Parse<T>(Token[] tokens)
         {
             tokens = tokens.Where(x => x.Type != TokenType.NewLine).ToArray();
 
@@ -302,10 +322,10 @@ namespace kawtn.IO.Konfig
                 i++;
             }
 
-            T obj = Parser.CreateInstance<T>();
+            T? obj = Parser.CreateInstance<T>();
             if (obj == null)
             {
-                return obj;
+                return default(T);
             }
 
             Type type = obj.GetType();
@@ -354,8 +374,10 @@ namespace kawtn.IO.Konfig
             {
                 if (Parser.GetMemberValue(member, obj) != null) continue;
 
-                Type? memberType = Parser.GetMemberValueType(member);
-                if (memberType == null) continue;
+                Type? actualType = Parser.GetMemberValueActualType(member);
+                if (actualType == null) continue;
+
+                Type memberType = TypeConversion.NotNullableType(actualType);
 
                 if (memberType.IsArray)
                 {
@@ -383,7 +405,11 @@ namespace kawtn.IO.Konfig
                         Parser.SetMemberValue(member, obj, Activator.CreateInstance(typeof(Stack<>).MakeGenericType(elementType)));
                     }
                 }
-                else if (memberType.IsClass)
+                else if (memberType == typeof(string))
+                {
+                    Parser.SetMemberValue(member, obj, string.Empty);
+                }
+                else if (!TypeConversion.IsNullableType(actualType))
                 {
                     Parser.SetMemberValue(member, obj, Parser.CreateInstance(memberType));
                 }

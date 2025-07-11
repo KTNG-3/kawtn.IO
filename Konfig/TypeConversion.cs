@@ -49,6 +49,11 @@ namespace kawtn.IO.Konfig
             return null;
         }
 
+        public static bool IsNullableType(Type type)
+        {
+            return Nullable.GetUnderlyingType(type) != null;
+        }
+
         public static Type NotNullableType(Type type)
         {
             return Nullable.GetUnderlyingType(type) ?? type;

@@ -17,7 +17,7 @@ namespace kawtn.IO.Konfig
         {
             Token[] tokens = new Lexer().Tokenization(content);
 
-            T data = Parser.Parse<T>(tokens);
+            T? data = Parser.Parse<T>(tokens);
 
             return data;
         }
