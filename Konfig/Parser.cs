@@ -159,12 +159,12 @@ namespace kawtn.IO.Konfig
         {
             if (member is PropertyInfo property)
             {
-                return property.PropertyType;
+                return TypeConversion.NotNullableType(property.PropertyType);
             }
 
             if (member is FieldInfo field)
             {
-                return field.FieldType;
+                return TypeConversion.NotNullableType(field.FieldType);
             }
 
             return null;

@@ -49,6 +49,11 @@ namespace kawtn.IO.Konfig
             return null;
         }
 
+        public static Type NotNullableType(Type type)
+        {
+            return Nullable.GetUnderlyingType(type) ?? type;
+        }
+
         public static object? Convert(Type type, string value)
         {
             if (type == typeof(bool))
@@ -152,6 +157,36 @@ namespace kawtn.IO.Konfig
 
             if (elementType == typeof(short))
                 return ConvertCollection(type, ToShort(values));
+
+            if (elementType == typeof(bool?))
+                return ConvertCollection(type, ToBoolean(values).Select(x => (bool?)x));
+
+            if (elementType == typeof(byte?))
+                return ConvertCollection(type, ToByte(values).Select(x => (byte?)x));
+
+            if (elementType == typeof(char?))
+                return ConvertCollection(type, ToChar(values).Select(x => (char?)x));
+
+            if (elementType == typeof(DateTime?))
+                return ConvertCollection(type, ToDateTime(values).Select(x => (DateTime?)x));
+
+            if (elementType == typeof(decimal?))
+                return ConvertCollection(type, ToDecimal(values).Select(x => (decimal?)x));
+
+            if (elementType == typeof(double?))
+                return ConvertCollection(type, ToDouble(values).Select(x => (double?)x));
+
+            if (elementType == typeof(float?))
+                return ConvertCollection(type, ToFloat(values).Select(x => (float?)x));
+
+            if (elementType == typeof(int?))
+                return ConvertCollection(type, ToInt(values).Select(x => (int?)x));
+
+            if (elementType == typeof(long?))
+                return ConvertCollection(type, ToLong(values).Select(x => (long?)x));
+
+            if (elementType == typeof(short?))
+                return ConvertCollection(type, ToShort(values).Select(x => (short?)x));
 
             if (elementType == typeof(string))
                 return ConvertCollection(type, ToString(values));
