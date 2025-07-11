@@ -383,6 +383,10 @@ namespace kawtn.IO.Konfig
                         Parser.SetMemberValue(member, obj, Activator.CreateInstance(typeof(Stack<>).MakeGenericType(elementType)));
                     }
                 }
+                else if (memberType.IsClass)
+                {
+                    Parser.SetMemberValue(member, obj, Parser.CreateInstance(memberType));
+                }
             }
 
             return obj;
